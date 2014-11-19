@@ -59,6 +59,7 @@ cateHTML = os.popen(command).read();
 (tags,contents)=split_html(cateHTML)
 (tags,contents)=del_empty_html(tags,contents)
 
+print contents
 currentM=""
 modules = []
 ass     = []
@@ -71,6 +72,7 @@ for i in range(0,len(contents)):
         if(nt=="a" or nt=="/b"):
             ass.append((currentM,contents[i+1]))
 
-
+"""
 print modules
 print ass
+"""
