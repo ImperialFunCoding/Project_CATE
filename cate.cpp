@@ -1,5 +1,7 @@
 #include <iostream>
+#include <fstream>
 #include <string>
+#include <sys/stat.h>
 
 using namespace std;
 
@@ -15,6 +17,10 @@ using namespace std;
 //Help section
 const string helpSection = "Help Section";
 
+// Path for attributes file
+//const string attPath = "/cateFiles/attributes.txt";
+//const char testPath[] = "~/Project_CATE/html.hpp";
+
 // Valid cate commands
 const string UPDATE = "update";
 const string SET    = "set";
@@ -26,6 +32,8 @@ const string HELP   = "--help";
 string validCommands[] = {UPDATE, SET, PULL, MODS, ASS, HELP};
 
 // Function declarations
+bool attFileExists();
+bool fileExists(string filename);
 
 bool elem(string e, string elems[], int size);
 void execCommand(int size, char *argv[]);
@@ -41,6 +49,7 @@ void runPull(string id);
 
 bool isValidClass(string cl);
 bool isValidPeriod(string period);
+
 void runSet(string cl, string period);
 
 void runCurrAss();
@@ -51,6 +60,7 @@ int main(int argc, char *argv[]) {
         cout << "Incorrect usage, see 'cate --help' for more information" << endl;
         return 1;
     }
+    
     if (elem(string(argv[1]), validCommands, 6)) {
        execCommand(argc, argv);
     }
@@ -164,6 +174,28 @@ void runAllAss() {
     cout << "Listing all assigments" << endl;
 }
 
+
+
+
+
+
+
+////// Unused code //////
+
+bool attFileExists() {
+    ifstream f(testPath);
+    //f.open(attPath);
+    return f.good();
+}
+
+bool fileExists(string filename) {
+    struct stat buf;
+    if (stat(filename.c_str(), &buf) != -1)
+    {
+        return true;
+    }
+    return false;
+}
 
 
 
