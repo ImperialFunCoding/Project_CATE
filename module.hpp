@@ -1,17 +1,17 @@
 class Module {
     
 public:
-    Module(string n_modNumber, string n_name, Notes n_notes[]) {
+    Module(std::string n_modNumber, std::string n_name, Notes n_notes[]) {
         modNumber = n_modNumber;
         name = n_name;
         notes = n_notes;
     }
     
-    string getModNumber() {
+    std::string getModNumber() {
         return modNumber;
     }
     
-    string getName() {
+    std::string getName() {
         return name;
     }
     
@@ -20,7 +20,7 @@ public:
     }
     
 private:
-    string modNumber;
-    string name;
+    std::string modNumber;
+    std::string name;
     Notes notes[];
 };

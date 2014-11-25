@@ -1,4 +1,4 @@
-class Assigment {
+class Assignment {
     
 public:
     Assignment(string n_id, string n_name, bool n_counted, string n_dueDate, string n_link) {

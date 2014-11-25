@@ -2,6 +2,9 @@
 #include <fstream>
 #include <string>
 #include <sys/stat.h>
+#include <stdio.h>
+#include "html.hpp"
+
 
 using namespace std;
 
@@ -18,8 +21,9 @@ using namespace std;
 const string helpSection = "Help Section";
 
 // Path for attributes file
-//const string attPath = "/cateFiles/attributes.txt";
-//const char testPath[] = "~/Project_CATE/html.hpp";
+const string attPath = string(getenv("HOME"))+"/cateFiles/.attributes.txt";
+const string assPath = string(getenv("HOME"))+"/cateFiles/.ass.txt";
+const string modPath = string(getenv("HOME"))+"/cateFiles/.mods.txt";
 
 // Valid cate commands
 const string UPDATE = "update";
@@ -33,7 +37,7 @@ string validCommands[] = {UPDATE, SET, PULL, MODS, ASS, HELP};
 
 // Function declarations
 bool attFileExists();
-bool fileExists(string filename);
+void initAttributes();
 
 bool elem(string e, string elems[], int size);
 void execCommand(int size, char *argv[]);
@@ -55,10 +59,16 @@ void runSet(string cl, string period);
 void runCurrAss();
 void runAllAss();
 
+string* getClassPeriod();
+
 int main(int argc, char *argv[]) {
     if (argc > 4 || argc == 1) {
         cout << "Incorrect usage, see 'cate --help' for more information" << endl;
         return 1;
+    }
+    
+    if (!attFileExists()) {
+        initAttributes();
     }
     
     if (elem(string(argv[1]), validCommands, 6)) {
@@ -126,8 +136,12 @@ void execCommand(int size, char *argv[]) {
 ////////// Executive Functions //////////
 
 void runUpdate() {
-    //Temporary result
-    cout << "Update" << endl;
+    string *cp = getClassPeriod();
+    string username;
+    cout << "Please enter your cate username:" << endl;
+    cin >> username;
+    //cout << username << " " << (*cp++) << (*cp) << endl;
+    Assignment* allAss = Html::getAssignments((*cp++), (*cp), username);
 }
 
 void runHelp() {
@@ -151,17 +165,27 @@ void runPull(string id) {
 
 bool isValidClass(string cl) {
     //Temporary value
-    return (cl == "c1");
+    return (cl == "c1" || cl == "c2");
 }
 
 bool isValidPeriod(string period) {
     //Temporary value
-    return (period == "autumn");
+    return (period == "autumn" || period == "spring");
 }
 
 void runSet(string cl, string period) {
-    //Temporary result
-    cout << "Set" << endl;
+    
+    string path = "mkdir "+string(getenv("HOME"))+"/cateFiles";
+    system(path.c_str());
+    ofstream att;
+    att.open(attPath);
+    
+    if (att.is_open()) {
+        att << cl << "\n" << period;
+        att.close();
+        cout << "Attributes set to:\n" << "Class: " << cl << "\nPeriod: " << period << endl;
+    } else cout << "Could not set attributes";
+
 }
 
 void runCurrAss() {
@@ -174,28 +198,38 @@ void runAllAss() {
     cout << "Listing all assigments" << endl;
 }
 
-
-
-
-
-
-
-////// Unused code //////
-
 bool attFileExists() {
-    ifstream f(testPath);
-    //f.open(attPath);
+    ifstream f;
+    f.open(attPath);
     return f.good();
 }
 
-bool fileExists(string filename) {
-    struct stat buf;
-    if (stat(filename.c_str(), &buf) != -1)
-    {
-        return true;
+void initAttributes() {
+    string path = "mkdir "+string(getenv("HOME"))+"/cateFiles";
+    system(path.c_str());
+    ofstream att;
+    att.open(attPath);
+    if (att.is_open()) {
+        att << "c1\n" << "autumn";
     }
-    return false;
 }
+
+string* getClassPeriod() {
+    ifstream f;
+    f.open(attPath);
+    string* cp = new string[2];
+    //string cp[2];
+    //pointer = cp;
+    if (f.is_open()) {
+        //getline(f, cp[0]);
+        //getline(f, cp[1]);
+        f >> cp[0] >> cp[1];
+    }
+    f.close();
+    return cp;
+}
+
+
 
 
 
