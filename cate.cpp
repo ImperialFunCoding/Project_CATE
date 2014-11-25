@@ -3,6 +3,7 @@
 #include <string>
 #include <sys/stat.h>
 #include <stdio.h>
+#include <iomanip>
 #include "html.hpp"
 
 
@@ -21,9 +22,9 @@ using namespace std;
 const string helpSection = "Help Section";
 
 // Path for attributes file
-const string attPath = string(getenv("HOME"))+"/cateFiles/.attributes.txt";
-const string assPath = string(getenv("HOME"))+"/cateFiles/.ass.txt";
-const string modPath = string(getenv("HOME"))+"/cateFiles/.mods.txt";
+const string attPath = string(getenv("HOME"))+"/.cateFiles/attributes.txt";
+const string assPath = string(getenv("HOME"))+"/.cateFiles/ass.txt";
+const string modPath = string(getenv("HOME"))+"/.cateFiles/mods.txt";
 
 // Valid cate commands
 const string UPDATE = "update";
@@ -142,31 +143,43 @@ void runUpdate() {
     cin >> username;
     string cl = *cp++;
     string pd = *cp;
-    delete cp;
-    Html html(cl, pd, username);
-    Assignment* allAss = html.getAssignments();
-    Module* allMods = html.getModules();
     
-    ofstream ass(assPath);
+    //Html html(cl, pd, username);
+    //Assignment* allAss = html.getAssignments();
+    //Module* allMods = html.getModules();
+    
+    Assignment allASS[] = {Assignment("125s", "Maths", true, "11 October 2014", "www.google.com"), Assignment("345s", "Physics", false, "25 December 2014", "www.facebook.com") };
+    
+    Assignment* allAss = allASS;
+    
+    ofstream ass(assPath, ofstream::out);
     if (ass.is_open()) {
-        for (int i = 0; i < html.assSize(); i++) {
-            ass << allAss->getID() << endl << allAss->getName() << endl << allAss->getLink();
+        for (int i = 0; i < 2; i++) {
+            ass << allAss->getID() << endl << allAss->getName() << endl << allAss->isCounted() << endl << allAss->getDueDate() << endl << allAss->getLink() << endl;
             allAss++;
         }
     }
     ass.close();
     
+    Notes notesFrench[] = {Notes("317n", "Notes 1", "www.hotmail.com"), Notes("715n", "Notes 2", "www.espn.com")};
+    Notes notesSpanish[] = {Notes("654n", "Notes 3", "www.hello.com"), Notes("976n", "Notes 4", "www.hola.com")};
+    
+    Module allMODS[] = {Module("131.1", "French", notesFrench, 2), Module("135.1", "Spanish", notesSpanish, 2)};
+    
+    Module* allMods = allMODS;
+    
     ofstream mod(modPath);
     if (mod.is_open()) {
-        for (int i = 0; i < html.modSize(); i++) {
+        for (int i = 0; i < 2; i++) {
             mod << allMods->getModNumber() << endl << allMods->getName() << endl;
-            for (int j = 0; j < allMods->noteSize(); j++) {
-                mod << allMods->getNotes()[j].getID() << endl << allMods->getNotes()[j].getName() << endl << allMods->getNotes()[j].getLink();
-            }
+            /*for (int j = 0; j < allMods->noteSize(); j++) {
+                mod << allMods->getNotes()[j].getID() << endl << allMods->getNotes()[j].getName() << endl << allMods->getNotes()[j].getLink() << endl;
+            } */
             allMods++;
         }
     }
     mod.close();
+    
 }
 
 void runHelp() {
@@ -200,8 +213,8 @@ bool isValidPeriod(string period) {
 
 void runSet(string cl, string period) {
     
-    string path = "mkdir "+string(getenv("HOME"))+"/cateFiles";
-    system(path.c_str());
+    string path = "mkdir -p "+string(getenv("HOME"))+"/.cateFiles";
+    popen(path.c_str(), "r");
     ofstream att;
     att.open(attPath);
     
@@ -219,8 +232,29 @@ void runCurrAss() {
 }
 
 void runAllAss() {
-    //Temporary result
-    cout << "Listing all assigments" << endl;
+    //cout << "Listing all assigments:\n" << endl;
+    cout << left << setw(5) << "ID" << " " << setw(15) << "Name" << " " << setw(20) << "Due Date" << " " << "Type" << endl;
+    ifstream fin(assPath);
+    if (fin.is_open()) {
+        for (int i = 0; i < 2; i++) {
+            string id;
+            getline(fin, id);
+            string name;
+            getline(fin, name);
+            // isCounted is a bool value, stored as 0 or 1 in file
+            string isCounted;
+            getline(fin, isCounted);
+            if (isCounted == "1") isCounted = "Assesed";
+            else if (isCounted == "0") isCounted = "Non-Assesed";
+            string dueDate;
+            getline(fin, dueDate);
+            string link;
+            getline(fin, link);
+            
+            cout << left << id << " " << setw(15) << name << " " << setw(20) << dueDate << " " << isCounted  << endl;
+        }
+        
+    }
 }
 
 bool attFileExists() {
@@ -230,8 +264,8 @@ bool attFileExists() {
 }
 
 void initAttributes() {
-    string path = "mkdir "+string(getenv("HOME"))+"/cateFiles";
-    system(path.c_str());
+    string path = "mkdir -p "+string(getenv("HOME"))+"/cateFiles";
+    popen(path.c_str(), "r");
     ofstream att;
     att.open(attPath);
     if (att.is_open()) {
@@ -243,11 +277,7 @@ string* getClassPeriod() {
     ifstream f;
     f.open(attPath);
     string* cp = new string[2];
-    //string cp[2];
-    //pointer = cp;
     if (f.is_open()) {
-        //getline(f, cp[0]);
-        //getline(f, cp[1]);
         f >> cp[0] >> cp[1];
     }
     f.close();
