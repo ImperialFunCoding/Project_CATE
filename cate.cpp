@@ -140,8 +140,33 @@ void runUpdate() {
     string username;
     cout << "Please enter your cate username:" << endl;
     cin >> username;
-    //cout << username << " " << (*cp++) << (*cp) << endl;
-    Assignment* allAss = Html::getAssignments((*cp++), (*cp), username);
+    string cl = *cp++;
+    string pd = *cp;
+    delete cp;
+    Html html(cl, pd, username);
+    Assignment* allAss = html.getAssignments();
+    Module* allMods = html.getModules();
+    
+    ofstream ass(assPath);
+    if (ass.is_open()) {
+        for (int i = 0; i < html.assSize(); i++) {
+            ass << allAss->getID() << endl << allAss->getName() << endl << allAss->getLink();
+            allAss++;
+        }
+    }
+    ass.close();
+    
+    ofstream mod(modPath);
+    if (mod.is_open()) {
+        for (int i = 0; i < html.modSize(); i++) {
+            mod << allMods->getModNumber() << endl << allMods->getName() << endl;
+            for (int j = 0; j < allMods->noteSize(); j++) {
+                mod << allMods->getNotes()[j].getID() << endl << allMods->getNotes()[j].getName() << endl << allMods->getNotes()[j].getLink();
+            }
+            allMods++;
+        }
+    }
+    mod.close();
 }
 
 void runHelp() {

@@ -1,7 +1,14 @@
 class Assignment {
     
+private:
+    std::string id;
+    std::string name;
+    std::string dueDate;
+    bool counted;
+    std::string link;
+    
 public:
-    Assignment(string n_id, string n_name, bool n_counted, string n_dueDate, string n_link) {
+    Assignment(std::string n_id, std::string n_name, bool n_counted, std::string n_dueDate, std::string n_link) {
         id = n_id;
         name = n_name;
         counted = n_counted;
@@ -9,30 +16,26 @@ public:
         link = n_link;
     }
     
-    string getID() {
+    std::string getID() {
         return id;
     }
     
-    string getName() {
+    std::string getName() {
         return name;
     }
     
-    string getDueDate() {
+    std::string getDueDate() {
         return dueDate;
     }
     
-    string getLink() {
+    std::string getLink() {
         return link;
     }
     
-    bool isCounted {
+    bool isCounted() {
         return counted;
     }
     
-private:
-    string id;
-    string name;
-    string dueDate;
-    bool counted;
-    string link;
 };
+    
+
