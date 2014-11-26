@@ -69,9 +69,6 @@ public:
             if (tag[i]==' ' || tag[i]=='>' || (tag[i]=='/' && tag[i+1]=='>')){
                 break;
             }
-            if (tag[i-1]=='<' && tag[i]=='/'){
-                continue;
-            }
             name+=tag[i];
         }
         return name;
@@ -79,6 +76,15 @@ public:
     int attrSize(){
         vector<string> attrs=this->attrKeys();
         return attrs.size();
+    }
+    bool hasAttr(string key){
+        vector<string> keys=this->attrKeys();
+        for(int i=0; i<keys.size();i++){
+            if(keys[i]==key){
+                return true;
+            }
+        }
+        return false;
     }
     string attrKey(int n){
         vector<string> keys=this->attrKeys();

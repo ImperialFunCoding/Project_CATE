@@ -62,6 +62,8 @@ public:
         return url;
     }
     //cate related functions
+    //asses
+
     //modules
     vector<string> findLinks(vector<Tag> tags,string file){
         vector<string> URLStack;
@@ -74,7 +76,7 @@ public:
         }
         return URLStack;
     }
-    vector<string> getNoteIds(vector<Tag> tags){
+    vector<string> getShowfileIds(vector<Tag> tags){
         vector<string> URLs = this->findLinks(tags, "showfile.cgi");
         vector<string> idStack;
         int colon,colon2;
@@ -87,11 +89,11 @@ public:
         }
         return idStack; 
     }
-    vector<string> getNoteURLs(vector<Tag> tags){
+    vector<string> getShowfileURLs(vector<Tag> tags){
         //Pre: tags is from notes.cgi
         return findLinks(tags,"showfile.cgi");
     }
-    vector<string> getNoteNames(vector<Tag> tags,vector<string> contents){
+    vector<string> getShowfileNames(vector<Tag> tags,vector<string> contents){
         vector<string> nameStack;
         for(int i=0; i<tags.size(); i++){
             for(int j=0; j<tags[i].attrSize(); j++){
@@ -166,8 +168,12 @@ public:
         //this will ask for password
         header  = getHeader(CATE_URL,user);
 
-        Curl curl(this->getURL('t'),header);
+        //assignment
+        
+
+
         //module
+        Curl curl(this->getURL('t'),header);
         vector<string> modNames=this->getModuleNames(curl.contents);
         vector<string> modIds=this->getModuleIds(curl.tags);
         vector<Module> mods;
@@ -175,9 +181,9 @@ public:
         for(int i=0; i<modNames.size(); i++){
             if(modIds.size()>i && atoi(modIds[i].c_str())>0){
                 Curl curl_notes("https://cate.doc.ic.ac.uk/notes.cgi?key=2014:"+modIds[i]+":1:c1:new:cmy14",header);
-                vector<string> noteIds= this->getNoteIds(curl_notes.tags);
-                vector<string> noteNames = this->getNoteNames(curl_notes.tags,curl_notes.contents);
-                vector<string> noteURLs = this->getNoteURLs(curl_notes.tags);
+                vector<string> noteIds= this->getShowfileIds(curl_notes.tags);
+                vector<string> noteNames = this->getShowfileNames(curl_notes.tags,curl_notes.contents);
+                vector<string> noteURLs = this->getShowfileURLs(curl_notes.tags);
                 vector<Notes> notes;
                 for(int i=0; i<noteIds.size();i++){
                     Notes note(noteIds[i],noteNames[i],noteURLs[i]);
