@@ -13,7 +13,7 @@ using namespace std;
      cate update
      cate set <class> <period>
      cate pull <id>
-     cate mods
+     cate mods [modnumber]
      cate ass [-a]
      cate --help
 */
@@ -47,7 +47,8 @@ void runUpdate();
 
 void runHelp();
 
-void runMods();
+void runAllMods();
+void runMod(string modNum);
 
 bool isValidID(string id);
 void runPull(string id);
@@ -99,7 +100,6 @@ void execCommand(int size, char *argv[]) {
     } else if (string(argv[1]) == SET) {
         
         if (size == 4) {
-            //NOTE - Gives segmentation fault: 11
             if (isValidClass(string(argv[2])) && isValidPeriod(string(argv[3]))) {
                 runSet(string(argv[2]), string(argv[3]));
             } else cout << "Error: class and/or period not valid" << endl;
@@ -115,8 +115,9 @@ void execCommand(int size, char *argv[]) {
         
     } else if (string(argv[1]) == MODS) {
         
-        if (size == 2) runMods();
-        else cout << "Correct usage: cate mods" << endl;
+        if (size == 2) runAllMods();
+        else if (size == 3) runMod(string(argv[2]));
+        else cout << "Correct usage: cate mods [modnumber]" << endl;
         
     } else if (string(argv[1]) == ASS) {
         
@@ -140,42 +141,54 @@ void runUpdate() {
     string *cp = getClassPeriod();
     string username;
     cout << "Please enter your cate username:" << endl;
-    cin >> username;
-    string cl = *cp++;
-    string pd = *cp;
+    getline(cin, username);
+    string cl = cp[0];
+    string pd = cp[1];
     
-    //Html html(cl, pd, username);
-    //Assignment* allAss = html.getAssignments();
-    //Module* allMods = html.getModules();
+    Html html(cl, pd, username);
+    Assignment* allAss = html.getAssignments();
+    Module* allMods = html.getModules();
     
+    /*
     Assignment allASS[] = {Assignment("125s", "Maths", true, "11 October 2014", "www.google.com"), Assignment("345s", "Physics", false, "25 December 2014", "www.facebook.com") };
     
     Assignment* allAss = allASS;
+    */
     
-    ofstream ass(assPath, ofstream::out);
+    ofstream ass(assPath);
     if (ass.is_open()) {
         for (int i = 0; i < 2; i++) {
-            ass << allAss->getID() << endl << allAss->getName() << endl << allAss->isCounted() << endl << allAss->getDueDate() << endl << allAss->getLink() << endl;
-            allAss++;
+            ass << allAss[i].getID() << endl << allAss[i].getName() << endl << allAss[i].isCounted() << endl << allAss[i].getDueDate() << endl << allAss[i].getLink() << endl;
         }
     }
     ass.close();
     
-    Notes notesFrench[] = {Notes("317n", "Notes 1", "www.hotmail.com"), Notes("715n", "Notes 2", "www.espn.com")};
-    Notes notesSpanish[] = {Notes("654n", "Notes 3", "www.hello.com"), Notes("976n", "Notes 4", "www.hola.com")};
+    /*
+    Notes notesFrench[] = {Notes("317n", "Notes F1", "www.hotmail.com"), Notes("715n", "Notes F2", "www.espn.com")};
+    Notes notesSpanish[] = {Notes("654n", "Notes S1", "www.hello.com"), Notes("976n", "Notes S2", "www.hola.com")};
     
     Module allMODS[] = {Module("131.1", "French", notesFrench, 2), Module("135.1", "Spanish", notesSpanish, 2)};
     
     Module* allMods = allMODS;
+    */
+    
+    /*
+    for (int i = 0; i < 2; i++) {
+        cout << allMods[i].noteSize() << endl;
+    }
+    */
     
     ofstream mod(modPath);
     if (mod.is_open()) {
         for (int i = 0; i < 2; i++) {
-            mod << allMods->getModNumber() << endl << allMods->getName() << endl;
-            /*for (int j = 0; j < allMods->noteSize(); j++) {
-                mod << allMods->getNotes()[j].getID() << endl << allMods->getNotes()[j].getName() << endl << allMods->getNotes()[j].getLink() << endl;
-            } */
-            allMods++;
+            mod << allMods[i].getModNumber() << endl;
+            mod << allMods[i].getName() << endl;
+            for (int k = 0; k < allMods[i].noteSize(); k++) {
+                mod << allMods[i].getNotes()[k].getID() << endl;
+                mod << allMods[i].getNotes()[k].getName() << endl;
+                mod << allMods[i].getNotes()[k].getLink() << endl;
+            }
+            mod << endl;
         }
     }
     mod.close();
@@ -186,9 +199,39 @@ void runHelp() {
     cout << helpSection << endl;
 }
 
-void runMods() {
+void runAllMods() {
     //Temporary result
-    cout << "Listing modules" << endl;
+    //cout << "Listing all modules" << endl;
+    
+    ifstream mods(modPath);
+    if (mods.is_open()) {
+        cout << left <<setw(7) << "Mod" << "Name" << endl;
+        //string line;
+        bool printThis = true;
+        while (!mods.eof()) {
+            if (printThis) {
+                string num;
+                string name;
+                getline(mods, num);
+                getline(mods, name);
+                cout << num << "  " << name << endl;
+                printThis = false;
+            } else {
+                string line;
+                getline(mods, line);
+                if (line.empty()) printThis = true;
+            }
+        }
+        mods.close();
+        
+    } else cout << "No modules to show" << endl;
+}
+
+void runMod(string modNum) {
+    //Temporary result
+    cout << "Listing given module" << endl;
+    
+    
 }
 
 bool isValidID(string id) {
@@ -228,12 +271,12 @@ void runSet(string cl, string period) {
 
 void runCurrAss() {
     //Temporary result
-    cout << "Listing current assigments" << endl;
+    cout << "Listing current assignments" << endl;
 }
 
 void runAllAss() {
     //cout << "Listing all assigments:\n" << endl;
-    cout << left << setw(5) << "ID" << " " << setw(15) << "Name" << " " << setw(20) << "Due Date" << " " << "Type" << endl;
+    cout << left << setw(4) << "ID" << " " << setw(15) << "Name" << " " << setw(20) << "Due Date" << " " << "Type" << endl;
     ifstream fin(assPath);
     if (fin.is_open()) {
         for (int i = 0; i < 2; i++) {
@@ -254,7 +297,7 @@ void runAllAss() {
             cout << left << id << " " << setw(15) << name << " " << setw(20) << dueDate << " " << isCounted  << endl;
         }
         
-    }
+    } else cout << "No Assignments to show" << endl;
 }
 
 bool attFileExists() {
@@ -264,13 +307,14 @@ bool attFileExists() {
 }
 
 void initAttributes() {
-    string path = "mkdir -p "+string(getenv("HOME"))+"/cateFiles";
+    string path = "mkdir -p "+string(getenv("HOME"))+"/.cateFiles";
     popen(path.c_str(), "r");
     ofstream att;
     att.open(attPath);
     if (att.is_open()) {
         att << "c1\n" << "autumn";
     }
+    att.close();
 }
 
 string* getClassPeriod() {

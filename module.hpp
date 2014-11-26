@@ -13,6 +13,7 @@ public:
         modNumber = n_modNumber;
         name = n_name;
         notes = n_notes;
+        numNotes = n_numNotes;
     }
     
     std::string getModNumber() {
