@@ -35,7 +35,7 @@ private:
         if(form!=""){
             command += "-F \""+form+"\" ";
         }
-        command += url;
+        command += "\""+url+"\"";
 
         if(!(f = popen(command.c_str(), "r"))){
             return "ERROR IN CALLING CURL. INVALID COMMAND.";
@@ -47,7 +47,33 @@ private:
         pclose(f);
         return html;
     }
-    
+
+    vector<string> get_tags(string html){
+        vector<string> tagStack;
+        string stringStack = "";
+        for (int i = 0; html[i]!='\0'; i++){
+            stringStack+=html[i];
+            if (html[i]=='<'){
+                stringStack="<";
+            }else if (html[i]=='>'){
+                tagStack.push_back(stringStack);
+            }
+        }
+        return tagStack; 
+    }
+    vector<string> get_contents(string html){
+        vector<string> contentStack;
+        string stringStack = "";
+        for (int i = 0; html[i]!='\0'; i++){
+            if (html[i]=='<'){
+                contentStack.push_back(trim(stringStack));
+            }else{
+                stringStack+=html[i];
+                if (html[i]=='>'){
+                    stringStack="";
+                }
+            }
+        }
 public:
     
     //Implement the following member functions
