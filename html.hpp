@@ -16,65 +16,120 @@ curl -u user -F "key=2014:1:23:"+cl+":submit:"+user -F "file-516-none=@cate_toke
 #include "assigment.hpp"
 #include "module.hpp"
 #include <iostream>
-#include <stdio.h>
+#include <vector>
+#include <string>
+#include <assert.h>
+#include "curl.hpp"
 
 using namespace std;
 
+const string CATE_URL= "https://cate.doc.ic.ac.uk/";
+
+
 class Html {
     
-private:
-    //Private fields here
-    string curl(string url, string user="", string form=""){
-        FILE *f;
-        string command = "curl -s ";
-        char buff[512];
-        string html = "";
-        if(user!=""){
-            command += "-u \""+user+"\" ";
+public:
+//private:
+    //string manipulation functions
+    string getURL(char p,string id=""){
+        string url;
+        url = CATE_URL;
+        switch(p){
+            case 't':
+                url += "timetable.cgi"
+                    "?period="+period+"&class="+cl+""
+                    "&keyt=2014\%3Anone\%3Anone\%3A"+user;
+                break;
+            case 'n':
+                assert(id!="");
+                url += "notes.cgi"
+                    "?key=2014:"+id+":"+period+":"
+                    ""+cl+":new:"+user;
+                break;
+            case 'g':
+                assert(id!="");
+                url += "given.cgi"
+                    "?key=2014:"+period+":"+id+":"
+                    ""+cl+":new:"+user;
+                break;
+            case 'h':
+                assert(id!="");
+                url += "handin.cgi"
+                    "?key=2014:"+period+":"+id+":"
+                    ""+cl+":new:"+user;
+                break;
         }
-        if(form!=""){
-            command += "-F \""+form+"\" ";
-        }
-        command += "\""+url+"\"";
-
-        if(!(f = popen(command.c_str(), "r"))){
-            return "ERROR IN CALLING CURL. INVALID COMMAND.";
-        }
-
-        while(fgets(buff, sizeof(buff), f)!=NULL){
-            html += buff;
-        }
-        pclose(f);
-        return html;
+        return url;
     }
-
-    vector<string> get_tags(string html){
-        vector<string> tagStack;
-        string stringStack = "";
-        for (int i = 0; html[i]!='\0'; i++){
-            stringStack+=html[i];
-            if (html[i]=='<'){
-                stringStack="<";
-            }else if (html[i]=='>'){
-                tagStack.push_back(stringStack);
-            }
-        }
-        return tagStack; 
-    }
-    vector<string> get_contents(string html){
-        vector<string> contentStack;
-        string stringStack = "";
-        for (int i = 0; html[i]!='\0'; i++){
-            if (html[i]=='<'){
-                contentStack.push_back(trim(stringStack));
-            }else{
-                stringStack+=html[i];
-                if (html[i]=='>'){
-                    stringStack="";
+    //cate related functions
+    //modules
+    vector<string> findLinks(vector<Tag> tags,string file){
+        vector<string> URLStack;
+        for (int i = 0; i < tags.size(); i++){
+            for(int j=0; j<tags[i].attrSize(); j++){
+                if(fileName(tags[i].attrValue(j))==file){
+                    URLStack.push_back(CATE_URL+tags[i].attrValue(j));
                 }
             }
         }
-public:
+        return URLStack;
+    }
+    vector<string> getNoteIds(vector<Tag> tags){
+        vector<string> URLs = this->findLinks(tags, "showfile.cgi");
+        vector<string> idStack;
+        int colon,colon2;
+        for(int i=0; i< URLs.size();i++){
+            //start from 6 to skip https://
+            colon2 = URLs[i].find_first_of(":",6);
+            colon  = URLs[i].find_first_of(":",colon2+1);
+            colon2 = URLs[i].find_first_of(":",colon+1);
+            idStack.push_back(URLs[i].substr(colon+1,colon2-colon-1));
+        }
+        return idStack; 
+    }
+    vector<string> getNoteURLs(vector<Tag> tags){
+        //Pre: tags is from notes.cgi
+        return findLinks(tags,"showfile.cgi");
+    }
+    vector<string> getNoteNames(vector<Tag> tags,vector<string> contents){
+        vector<string> nameStack;
+        for(int i=0; i<tags.size(); i++){
+            for(int j=0; j<tags[i].attrSize(); j++){
+                if(fileName(tags[i].attrValue(j))=="showfile.cgi"){
+                    nameStack.push_back(contents[i]);
+                }
+            }
+        }
+        return nameStack;    
+    }
+
+    vector<string> getModuleIds(vector<Tag> tags){
+        //Pre: tags is from timetable.cgi
+        vector<string> URLs = this->findLinks(tags,"notes.cgi");
+        vector<string> idStack;
+        int colon,colon2;
+        for(int i=0; i < URLs.size(); i++){
+            colon  = URLs[i].find_first_of(":",6);
+            colon2 = URLs[i].find_first_of(":",colon+1);
+            idStack.push_back(URLs[i].substr(colon+1,colon2-colon-1));
+        }
+        return idStack;
+    }
+
+    vector<string> getModuleNames(vector<string> contents){
+        //Pre: contents is from timetable.cgi
+        vector<string> moduleStack;
+        for (int i = 0; i < contents.size(); i++){
+            if(contents[i].length()>=2){
+                if(contents[i][0]=='-'){
+                    moduleStack.push_back(contents[i].substr(2));
+                }
+            }
+        }
+        return moduleStack;
+    }
+
+//public:
     
     //Implement the following member functions
 
@@ -86,7 +141,11 @@ public:
      */
 
     string cl, period, user;
-    
+    string header;
+
+    int modNum;
+    Module* modules;
+   
     Html(string c, string p, string u) {
         //Class constructor here
         
@@ -104,7 +163,34 @@ public:
         cl      = c;
         period  = p;
         user    = u;
-        
+        //this will ask for password
+        header  = getHeader(CATE_URL,user);
+
+        Curl curl(this->getURL('t'),header);
+        //module
+        vector<string> modNames=this->getModuleNames(curl.contents);
+        vector<string> modIds=this->getModuleIds(curl.tags);
+        vector<Module> mods;
+        modNum= modNames.size();
+        for(int i=0; i<modNames.size(); i++){
+            if(modIds.size()>i && atoi(modIds[i].c_str())>0){
+                Curl curl_notes("https://cate.doc.ic.ac.uk/notes.cgi?key=2014:"+modIds[i]+":1:c1:new:cmy14",header);
+                vector<string> noteIds= this->getNoteIds(curl_notes.tags);
+                vector<string> noteNames = this->getNoteNames(curl_notes.tags,curl_notes.contents);
+                vector<string> noteURLs = this->getNoteURLs(curl_notes.tags);
+                vector<Notes> notes;
+                for(int i=0; i<noteIds.size();i++){
+                    Notes note(noteIds[i],noteNames[i],noteURLs[i]);
+                    notes.push_back(note);
+                }
+                Module mod(modIds[i],modNames[i],&notes[0],noteIds.size());
+                mods.push_back(mod); 
+            }else{
+                Module mod("-1",modNames[i],NULL ,0);
+                mods.push_back(mod); 
+            }
+        }
+        modules = &mods[0];
     }
     
     Assignment* getAssignments() {
@@ -122,12 +208,12 @@ public:
     
     Module* getModules() {
         // Returns an array of Modules
-                return NULL;
+        return modules;
     }
     
     int modSize() {
         //Return the size of the modules array
-        return 0;
+        return modNum;
     }
     
     

@@ -1,35 +1,36 @@
 #include <iostream>
-#include "htmlpre.hpp"
+#include <stdio.h>
+#include "html.hpp"
 #include <vector>
+#include <stdlib.h>
 
 using namespace std;
 
 int main(){
+    Html html("c1","1","cmy14");
+    
+    /*getModuleID
     string cl="c1";
     string period="1";
     string user = "cmy14";
-    string url = "https://cate.doc.ic.ac.uk/timetable.cgi"
-        "?period="+period+"&class="+cl+""
-        "&keyt=2014\%3Anone\%3Anone\%3A"+user;
-    string html = curl(url, user);
-    vector<string> tags = get_tags(html);
-    vector<string> tag_keys;
-    vector<string> tag_vals;
-    vector<string> contents = get_contents(html);
-    vector<string> notesURLs= getNotesURLs(tags);;
-    for(int i = 0; i<notesURLs.size();i++){
-        cout<<notesURLs[i]<<endl;
-    }
-    /*for (int i = 0; i<tags.size(); i++){
-        tag_keys=tagAttrKeys(tags[i]);
-        tag_vals=tagAttrValues(tags[i]);
-        cout<<tagName(tags[i])<<" | "<<contents[i]<<" |";
-        for(int i = 0; i<tag_keys.size();i++){
-            cout<<" "<<tag_keys[i];
-        }
-        cout<<" |";
-        for(int i = 0; i<tag_vals.size();i++){
-            cout<<" "<<tag_vals[i];
+    string url ="https://cate.doc.ic.ac.uk/timetable.cgi?period=1&class=c1&keyt=2014%3Anone%3Anone%3Acmy14";
+    string header= getHeader(CATE_URL,user);
+    //fetch moduleIds and moduleNames
+    Curl curl(url,header);
+    vector<string> modNames=html.getModuleNames(curl.contents);
+    vector<string> modIds=html.getModuleIds(curl.tags);
+    for(int i=0; i<modNames.size(); i++){
+        if(modIds.size()>i && atoi(modIds[i].c_str())>0){
+            Curl curl_notes("https://cate.doc.ic.ac.uk/notes.cgi?key=2014:"+modIds[i]+":1:c1:new:cmy14",header);
+            vector<string> noteIds= html.getNoteIds(curl_notes.tags);
+            vector<string> noteNames = html.getNoteNames(curl_notes.tags,curl_notes.contents);
+            cout<<modIds[i]<<" "<<modNames[i];
+            cout<<" -> "<<endl;
+            for(int i=0; i<noteIds.size();i++){
+                cout<<"  "<<noteIds[i]<<". "<<noteNames[i]<<endl;
+            }
+        }else{
+            cout<<" "<<" "<<modNames[i];
         }
         cout<<endl;
     }*/
