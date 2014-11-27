@@ -57,6 +57,8 @@ public:
 
         assert (f = popen(command.c_str(), "r"));
 
+        cout<<"Fetching "<<u<<endl;
+
         while(fgets(buff, sizeof(buff), f)!=NULL){
             html += buff;
         }

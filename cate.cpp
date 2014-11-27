@@ -157,14 +157,14 @@ void runUpdate() {
 
     /*
     vector<Assignment> allAss;
-    allAss.push_back(Assignment("s125", "Maths", true, "11 October 2014", "www.google.com"));
-    allAss.push_back(Assignment("s345", "Physics", false, "25 December 2014", "www.facebook.com"));
+    allAss.push_back(Assignment("s125", "Maths", "green", "11 October 2014", "www.google.com"));
+    allAss.push_back(Assignment("s345", "Physics", "white", "25 December 2014", "www.facebook.com"));
     */
     
     ofstream ass(assPath.c_str());
     if (ass.is_open()) {
         for (int i = 0; i < allAss.size(); i++) {
-            ass << allAss[i].getID() << endl << allAss[i].getName() << endl << allAss[i].isCounted() << endl << allAss[i].getDueDate() << endl << allAss[i].getLink() << endl;
+            ass << allAss[i].getID() << endl << allAss[i].getName() << endl << allAss[i].assType() << endl << allAss[i].getDueDate() << endl << allAss[i].getLink() << endl;
         }
     }
     ass.close();
@@ -284,6 +284,8 @@ void runPull(string id) {
     if (id[0] == 'n') {
         
         string link;
+        string name;
+        string fileType;
         ifstream note(modPath.c_str());
         if (note.is_open()) {
             bool found = false;
@@ -298,14 +300,20 @@ void runPull(string id) {
                 return;
             }
 
-            getline(note, link);
+            getline(note, name);
             getline(note, link);
 
-            cout << link << endl;
+            //cout << link << endl;
         }
         note.close();
         //get username from link
-        //string user = link;
+        string user = link.substr(link.find(":NOTES:"));
+        user = user.substr(7);
+        string saveAs = "";
+        string pullCommand = "curl -s --user " + user + " \"" + link +"\"" + saveAs;
+        //cout << pullCommand << endl;
+        cout << "Pulling file for " + user + "." << endl;
+        //system(pullCommand.c_str());
 
     } else if (id[0] == 's') {
         
@@ -327,11 +335,12 @@ void runPull(string id) {
             getline(spec, link);
             getline(spec, link);
 
-            cout << link << endl;
+            //cout << link << endl;
         }
         spec.close();
         //getusername from link
-        //string user = link;
+        string user = link.substr(link.find(":SPECS:"));
+        //cout << user << endl;
         
     } else cout << "Error: pull id not valid" << endl;
 }
