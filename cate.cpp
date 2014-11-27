@@ -198,7 +198,7 @@ void runAllMods() {
     
     ifstream mods(modPath);
     if (mods.is_open()) {
-        cout << left <<setw(7) << "Mod" << "Name" << endl;
+        cout << left <<setw(5) << "Mod" << "Name" << endl;
         //string line;
         bool printThis = true;
         while (!mods.eof()) {
@@ -207,7 +207,7 @@ void runAllMods() {
                 string name;
                 getline(mods, num);
                 getline(mods, name);
-                cout << num << "  " << name << endl;
+                cout << setw(5) << num << name << endl;
                 printThis = false;
             } else {
                 string line;
