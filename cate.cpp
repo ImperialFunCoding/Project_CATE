@@ -3,8 +3,12 @@
 #include <string>
 #include <sys/stat.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <iomanip>
-#include "html.hpp"
+#include <vector>
+//#include "html.hpp"
+#include "assigment.hpp"
+#include "module.hpp"
 
 
 using namespace std;
@@ -150,33 +154,48 @@ void runUpdate() {
     //Module* allMods = html.getModules();
     
     
-    Assignment allASS[] = {Assignment("125s", "Maths", true, "11 October 2014", "www.google.com"), Assignment("345s", "Physics", false, "25 December 2014", "www.facebook.com") };
+    //Assignment allASS[] = {Assignment("125s", "Maths", true, "11 October 2014", "www.google.com"), Assignment("345s", "Physics", false, "25 December 2014", "www.facebook.com") };
     
-    Assignment* allAss = allASS;
+    //Assignment* allAss = allASS;
+
+    vector<Assignment> allAss;
+    allAss.push_back(Assignment("125s", "Maths", true, "11 October 2014", "www.google.com"));
+    allAss.push_back(Assignment("345s", "Physics", false, "25 December 2014", "www.facebook.com"));
     
-    ofstream ass(assPath);
+    ofstream ass(assPath.c_str());
     if (ass.is_open()) {
-        for (int i = 0; i < 2; i++) {
+        for (int i = 0; i < allAss.size(); i++) {
             ass << allAss[i].getID() << endl << allAss[i].getName() << endl << allAss[i].isCounted() << endl << allAss[i].getDueDate() << endl << allAss[i].getLink() << endl;
         }
     }
     ass.close();
     
     
-    Notes notesFrench[] = {Notes("317", "Notes F1", "www.hotmail.com"), Notes("715", "Notes F2", "www.espn.com")};
-    Notes notesSpanish[] = {Notes("654", "Notes S1", "www.hello.com"), Notes("976", "Notes S2", "www.hola.com")};
+    //Notes notesFrench[] = {Notes("317", "Notes F1", "www.hotmail.com"), Notes("715", "Notes F2", "www.espn.com")};
+    //Notes notesSpanish[] = {Notes("654", "Notes S1", "www.hello.com"), Notes("976", "Notes S2", "www.hola.com")};
     
-    Module allMODS[] = {Module("1", "French", notesFrench, 2), Module("2", "Spanish", notesSpanish, 2)};
+    //Module allMODS[] = {Module("1", "French", notesFrench, 2), Module("2", "Spanish", notesSpanish, 2)};
     
-    Module* allMods = allMODS;
+    //Module* allMods = allMODS;
+
+    vector<Notes> notesFrench;
+    notesFrench.push_back(Notes("317", "Notes F1", "www.hotmail.com"));
+    notesFrench.push_back(Notes("715", "Notes F2", "www.espn.com"));
+
+    vector<Notes> notesSpanish;
+    notesSpanish.push_back(Notes("654", "Notes S1", "www.hello.com"));
+    notesSpanish.push_back(Notes("976", "Notes S2", "www.hola.com"));
+
+    vector<Module> allMods;
+    allMods.push_back(Module("1", "French", notesFrench, 2));
+    allMods.push_back(Module("2", "Spanish", notesSpanish, 2));
     
-    
-    ofstream mod(modPath);
+    ofstream mod(modPath.c_str());
     if (mod.is_open()) {
-        for (int i = 0; i < 2; i++) {
+        for (int i = 0; i < allMods.size(); i++) {
             mod << allMods[i].getModNumber() << endl;
             mod << allMods[i].getName() << endl;
-            for (int k = 0; k < allMods[i].noteSize(); k++) {
+            for (int k = 0; k < allMods[i].getNotes().size(); k++) {
                 mod << allMods[i].getNotes()[k].getID() << endl;
                 mod << allMods[i].getNotes()[k].getName() << endl;
                 mod << allMods[i].getNotes()[k].getLink() << endl;
@@ -196,7 +215,7 @@ void runAllMods() {
     //Temporary result
     //cout << "Listing all modules" << endl;
     
-    ifstream mods(modPath);
+    ifstream mods(modPath.c_str());
     if (mods.is_open()) {
         cout << left <<setw(5) << "Mod" << "Name" << endl;
         //string line;
@@ -224,7 +243,7 @@ void runMod(string modNum) {
     //Temporary result
     //cout << "Listing given module" << endl;
     
-    ifstream mods(modPath);
+    ifstream mods(modPath.c_str());
     if (mods.is_open()) {
         bool found = false;
         while(!mods.eof()) {
@@ -281,7 +300,7 @@ void runSet(string cl, string period) {
     string path = "mkdir -p "+string(getenv("HOME"))+"/.cateFiles";
     popen(path.c_str(), "r");
     ofstream att;
-    att.open(attPath);
+    att.open(attPath.c_str());
     
     if (att.is_open()) {
         att << cl << "\n" << period;
@@ -299,7 +318,7 @@ void runCurrAss() {
 void runAllAss() {
     //cout << "Listing all assigments:\n" << endl;
     cout << left << setw(4) << "ID" << " " << setw(15) << "Name" << " " << setw(20) << "Due Date" << " " << "Type" << endl;
-    ifstream fin(assPath);
+    ifstream fin(assPath.c_str());
     if (fin.is_open()) {
         for (int i = 0; i < 2; i++) {
             string id;
@@ -324,7 +343,7 @@ void runAllAss() {
 
 bool attFileExists() {
     ifstream f;
-    f.open(attPath);
+    f.open(attPath.c_str());
     return f.good();
 }
 
@@ -332,7 +351,7 @@ void initAttributes() {
     string path = "mkdir -p "+string(getenv("HOME"))+"/.cateFiles";
     popen(path.c_str(), "r");
     ofstream att;
-    att.open(attPath);
+    att.open(attPath.c_str());
     if (att.is_open()) {
         att << "c1\n" << "1";
     }
@@ -341,7 +360,7 @@ void initAttributes() {
 
 string* getClassPeriod() {
     ifstream f;
-    f.open(attPath);
+    f.open(attPath.c_str());
     string* cp = new string[2];
     if (f.is_open()) {
         f >> cp[0] >> cp[1];
