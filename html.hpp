@@ -59,6 +59,24 @@ public:
                     "?key=2014:"+period+":"+id+":"
                     ""+cl+":new:"+user;
                 break;
+            case 's':
+                assert(id!="");
+//                https://cate.doc.ic.ac.uk/showfile.cgi?key=2014:1:502:c1:SPECS:cmy14
+                string type;
+                switch(id[0]){
+                    case 'n':
+                        type = "NOTES";
+                        break;
+                    case 's':
+                        type = "SPECS";
+                        break;
+                    default:
+                        assert(false && "THE ID IS NOT RIGHT");
+                }
+                url += "showfile.cgi"
+                    "?key=2014:"+period+":"+id+":"
+                    ""+cl+":"+type+":"+user;
+                break;
         }
         return url;
     }
@@ -110,12 +128,36 @@ public:
         //Pre: tags is from timetable.cgi
         vector<string> URLs = this->findLinks(tags,"notes.cgi");
         vector<string> idStack;
+        int rowspanPos;
+        int bgcolorPos;
+        int j=0;
+        for(int i=0; i<tags.size();i++){
+            rowspanPos=tags[i].attrPos("rowspan");
+            bgcolorPos=tags[i].attrPos("bgcolor");
+            if(tags[i].name()=="td"
+            && rowspanPos>=0 
+            && bgcolorPos>=0){
+                if(tags[i].attrValue(bgcolorPos)=="white"&&tags[i+1].name()=="b"){
+                    if(tags[i+6].name()=="a"){
+                        int colon,colon2;
+                        colon  = URLs[j].find_first_of(":",6);
+                        colon2 = URLs[j].find_first_of(":",colon+1);
+                        idStack.push_back(URLs[j++].substr(colon+1,colon2-colon-1));
+                    }else{
+                        idStack.push_back("-1");
+                    }
+                }
+            }
+        }
+        /*vector<string> URLs = this->findLinks(tags,"notes.cgi");
+        vector<string> idStack;
         int colon,colon2;
         for(int i=0; i < URLs.size(); i++){
             colon  = URLs[i].find_first_of(":",6);
             colon2 = URLs[i].find_first_of(":",colon+1);
             idStack.push_back(URLs[i].substr(colon+1,colon2-colon-1));
-        }
+        }*/
+
         return idStack;
     }
 
@@ -187,13 +229,13 @@ public:
                 vector<string> noteURLs = this->getShowfileURLs(curl_notes.tags);
                 vector<Notes> notes;
                 for(int j=0; j<noteIds.size();j++){
-                    Notes note(noteIds[j],noteNames[j],noteURLs[j]);
+                    Notes note("n"+noteIds[j],noteNames[j],noteURLs[j]);
                     notes.push_back(note);
                 }
                 Module mod(modIds[i],modNames[i],notes,noteIds.size());
                 mods.push_back(mod); 
             }else{
-                Module mod("-1",modNames[i],NULL ,0);
+                Module mod("-1",modNames[i],vector<Notes>(),0);
                 mods.push_back(mod); 
             }
         }
@@ -203,7 +245,7 @@ public:
     vector<Assignment> getAssignments() {
         // Returns an array of Assignments
         
-        return NULL;
+        return vector<Assignment>();
     }
     
     int assSize() {

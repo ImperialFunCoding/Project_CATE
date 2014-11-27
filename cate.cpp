@@ -3,7 +3,12 @@
 #include <string>
 #include <sys/stat.h>
 #include <stdio.h>
+#include <stdlib.h>
+#include <iomanip>
+#include <vector>
 #include "html.hpp"
+//#include "assigment.hpp"
+//#include "module.hpp"
 
 
 using namespace std;
@@ -12,7 +17,7 @@ using namespace std;
      cate update
      cate set <class> <period>
      cate pull <id>
-     cate mods
+     cate mods [modnumber]
      cate ass [-a]
      cate --help
 */
@@ -21,9 +26,9 @@ using namespace std;
 const string helpSection = "Help Section";
 
 // Path for attributes file
-const string attPath = string(getenv("HOME"))+"/cateFiles/.attributes.txt";
-const string assPath = string(getenv("HOME"))+"/cateFiles/.ass.txt";
-const string modPath = string(getenv("HOME"))+"/cateFiles/.mods.txt";
+const string attPath = string(getenv("HOME"))+"/.cateFiles/attributes.txt";
+const string assPath = string(getenv("HOME"))+"/.cateFiles/ass.txt";
+const string modPath = string(getenv("HOME"))+"/.cateFiles/mods.txt";
 
 // Valid cate commands
 const string UPDATE = "update";
@@ -46,7 +51,8 @@ void runUpdate();
 
 void runHelp();
 
-void runMods();
+void runAllMods();
+void runMod(string modNum);
 
 bool isValidID(string id);
 void runPull(string id);
@@ -98,7 +104,6 @@ void execCommand(int size, char *argv[]) {
     } else if (string(argv[1]) == SET) {
         
         if (size == 4) {
-            //NOTE - Gives segmentation fault: 11
             if (isValidClass(string(argv[2])) && isValidPeriod(string(argv[3]))) {
                 runSet(string(argv[2]), string(argv[3]));
             } else cout << "Error: class and/or period not valid" << endl;
@@ -114,8 +119,9 @@ void execCommand(int size, char *argv[]) {
         
     } else if (string(argv[1]) == MODS) {
         
-        if (size == 2) runMods();
-        else cout << "Correct usage: cate mods" << endl;
+        if (size == 2) runAllMods();
+        else if (size == 3) runMod(string(argv[2]));
+        else cout << "Correct usage: cate mods [modnumber]" << endl;
         
     } else if (string(argv[1]) == ASS) {
         
@@ -139,43 +145,134 @@ void runUpdate() {
     string *cp = getClassPeriod();
     string username;
     cout << "Please enter your cate username:" << endl;
-    cin >> username;
-    string cl = *cp++;
-    string pd = *cp;
-    delete cp;
-    Html html(cl, pd, username);
-    Assignment* allAss = html.getAssignments();
-    Module* allMods = html.getModules();
+    getline(cin, username);
+    string cl = cp[0];
+    string pd = cp[1];
     
-    ofstream ass(assPath);
+    Html html(cl, pd, username);
+    vector<Assignment> allAss = html.getAssignments();
+    vector<Module> allMods = html.getModules();
+    
+    
+    //Assignment allASS[] = {Assignment("125s", "Maths", true, "11 October 2014", "www.google.com"), Assignment("345s", "Physics", false, "25 December 2014", "www.facebook.com") };
+    
+    //Assignment* allAss = allASS;
+
+    /*vector<Assignment> allAss;
+    allAss.push_back(Assignment("125s", "Maths", true, "11 October 2014", "www.google.com"));
+    allAss.push_back(Assignment("345s", "Physics", false, "25 December 2014", "www.facebook.com"));*/
+    
+    ofstream ass(assPath.c_str());
     if (ass.is_open()) {
-        for (int i = 0; i < html.assSize(); i++) {
-            ass << allAss->getID() << endl << allAss->getName() << endl << allAss->getLink();
-            allAss++;
+        for (int i = 0; i < allAss.size(); i++) {
+            ass << allAss[i].getID() << endl << allAss[i].getName() << endl << allAss[i].isCounted() << endl << allAss[i].getDueDate() << endl << allAss[i].getLink() << endl;
         }
     }
     ass.close();
     
-    ofstream mod(modPath);
+    
+    //Notes notesFrench[] = {Notes("317", "Notes F1", "www.hotmail.com"), Notes("715", "Notes F2", "www.espn.com")};
+    //Notes notesSpanish[] = {Notes("654", "Notes S1", "www.hello.com"), Notes("976", "Notes S2", "www.hola.com")};
+    
+    //Module allMODS[] = {Module("1", "French", notesFrench, 2), Module("2", "Spanish", notesSpanish, 2)};
+    
+    //Module* allMods = allMODS;
+/*
+    vector<Notes> notesFrench;
+    notesFrench.push_back(Notes("317", "Notes F1", "www.hotmail.com"));
+    notesFrench.push_back(Notes("715", "Notes F2", "www.espn.com"));
+
+    vector<Notes> notesSpanish;
+    notesSpanish.push_back(Notes("654", "Notes S1", "www.hello.com"));
+    notesSpanish.push_back(Notes("976", "Notes S2", "www.hola.com"));
+
+    vector<Module> allMods;
+    allMods.push_back(Module("1", "French", notesFrench, 2));
+    allMods.push_back(Module("2", "Spanish", notesSpanish, 2));
+*/   
+    ofstream mod(modPath.c_str());
     if (mod.is_open()) {
-        for (int i = 0; i < html.modSize(); i++) {
-            mod << allMods->getModNumber() << endl << allMods->getName() << endl;
-            for (int j = 0; j < allMods->noteSize(); j++) {
-                mod << allMods->getNotes()[j].getID() << endl << allMods->getNotes()[j].getName() << endl << allMods->getNotes()[j].getLink();
+        for (int i = 0; i < allMods.size(); i++) {
+            mod << allMods[i].getModNumber() << endl;
+            mod << allMods[i].getName() << endl;
+            for (int k = 0; k < allMods[i].getNotes().size(); k++) {
+                mod << allMods[i].getNotes()[k].getID() << endl;
+                mod << allMods[i].getNotes()[k].getName() << endl;
+                mod << allMods[i].getNotes()[k].getLink() << endl;
             }
-            allMods++;
+            mod << endl;
         }
     }
     mod.close();
+    
 }
 
 void runHelp() {
     cout << helpSection << endl;
 }
 
-void runMods() {
+void runAllMods() {
     //Temporary result
-    cout << "Listing modules" << endl;
+    //cout << "Listing all modules" << endl;
+    
+    ifstream mods(modPath.c_str());
+    if (mods.is_open()) {
+        cout << left <<setw(5) << "Mod" << "Name" << endl;
+        //string line;
+        bool printThis = true;
+        while (!mods.eof()) {
+            if (printThis) {
+                string num;
+                string name;
+                getline(mods, num);
+                getline(mods, name);
+                cout << setw(5) << num << name << endl;
+                printThis = false;
+            } else {
+                string line;
+                getline(mods, line);
+                if (line.empty()) printThis = true;
+            }
+        }
+        mods.close();
+        
+    } else cout << "No modules to show" << endl;
+}
+
+void runMod(string modNum) {
+    //Temporary result
+    //cout << "Listing given module" << endl;
+    
+    ifstream mods(modPath.c_str());
+    if (mods.is_open()) {
+        bool found = false;
+        while(!mods.eof()) {
+            string line;
+            getline(mods, line);
+            if (line == modNum) {found = true; break;}
+        }
+        if (found) {
+            string name;
+            getline(mods, name);
+            
+            cout << "Module: " << name << endl;
+            cout << left << setw(5) << "ID" << "Name" << endl;
+            
+            while(!mods.eof()) {
+                string id;
+                string name;
+                string link;
+                getline(mods, id);
+                getline(mods, name);
+                getline(mods, link);
+                
+                if (id.empty()) break;
+                
+                cout << setw(5) << id << name << endl;
+            }
+        } else cout << "Module not found" << endl;
+    }
+    mods.close();
 }
 
 bool isValidID(string id) {
@@ -190,20 +287,20 @@ void runPull(string id) {
 
 bool isValidClass(string cl) {
     //Temporary value
-    return (cl == "c1" || cl == "c2");
+    return (cl == "c1" || cl == "c2" || cl == "c3");
 }
 
 bool isValidPeriod(string period) {
     //Temporary value
-    return (period == "autumn" || period == "spring");
+    return (period == "1" || period == "2");
 }
 
 void runSet(string cl, string period) {
     
-    string path = "mkdir "+string(getenv("HOME"))+"/cateFiles";
-    system(path.c_str());
+    string path = "mkdir -p "+string(getenv("HOME"))+"/.cateFiles";
+    popen(path.c_str(), "r");
     ofstream att;
-    att.open(attPath);
+    att.open(attPath.c_str());
     
     if (att.is_open()) {
         att << cl << "\n" << period;
@@ -215,39 +312,57 @@ void runSet(string cl, string period) {
 
 void runCurrAss() {
     //Temporary result
-    cout << "Listing current assigments" << endl;
+    cout << "Listing current assignments" << endl;
 }
 
 void runAllAss() {
-    //Temporary result
-    cout << "Listing all assigments" << endl;
+    //cout << "Listing all assigments:\n" << endl;
+    cout << left << setw(4) << "ID" << " " << setw(15) << "Name" << " " << setw(20) << "Due Date" << " " << "Type" << endl;
+    ifstream fin(assPath.c_str());
+    if (fin.is_open()) {
+        for (int i = 0; i < 2; i++) {
+            string id;
+            getline(fin, id);
+            string name;
+            getline(fin, name);
+            // isCounted is a bool value, stored as 0 or 1 in file
+            string isCounted;
+            getline(fin, isCounted);
+            if (isCounted == "1") isCounted = "Assesed";
+            else if (isCounted == "0") isCounted = "Non-Assesed";
+            string dueDate;
+            getline(fin, dueDate);
+            string link;
+            getline(fin, link);
+            
+            cout << left << id << " " << setw(15) << name << " " << setw(20) << dueDate << " " << isCounted  << endl;
+        }
+        
+    } else cout << "No Assignments to show" << endl;
 }
 
 bool attFileExists() {
     ifstream f;
-    f.open(attPath);
+    f.open(attPath.c_str());
     return f.good();
 }
 
 void initAttributes() {
-    string path = "mkdir "+string(getenv("HOME"))+"/cateFiles";
-    system(path.c_str());
+    string path = "mkdir -p "+string(getenv("HOME"))+"/.cateFiles";
+    popen(path.c_str(), "r");
     ofstream att;
-    att.open(attPath);
+    att.open(attPath.c_str());
     if (att.is_open()) {
-        att << "c1\n" << "autumn";
+        att << "c1\n" << "1";
     }
+    att.close();
 }
 
 string* getClassPeriod() {
     ifstream f;
-    f.open(attPath);
+    f.open(attPath.c_str());
     string* cp = new string[2];
-    //string cp[2];
-    //pointer = cp;
     if (f.is_open()) {
-        //getline(f, cp[0]);
-        //getline(f, cp[1]);
         f >> cp[0] >> cp[1];
     }
     f.close();
