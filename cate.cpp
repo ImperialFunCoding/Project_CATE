@@ -221,6 +221,7 @@ void runAllMods() {
                 string name;
                 getline(mods, num);
                 getline(mods, name);
+                if (num == "-1") num = "-";
                 cout << setw(5) << num << name << endl;
                 printThis = false;
             } else {
@@ -281,7 +282,8 @@ void runPull(string id) {
     //cout << "Pulled file" << endl;
 
     if (id[0] == 'n') {
-
+        
+        string link;
         ifstream note(modPath.c_str());
         if (note.is_open()) {
             bool found = false;
@@ -296,16 +298,18 @@ void runPull(string id) {
                 return;
             }
 
-            string link;
             getline(note, link);
             getline(note, link);
 
             cout << link << endl;
         }
         note.close();
+        //get username from link
+        //string user = link;
 
     } else if (id[0] == 's') {
         
+        string link;
         ifstream spec(modPath.c_str());
         if (spec.is_open()) {
             bool found = false;
@@ -320,14 +324,15 @@ void runPull(string id) {
                 return;
             }
 
-            string link;
             getline(spec, link);
             getline(spec, link);
 
             cout << link << endl;
         }
         spec.close();
-
+        //getusername from link
+        //string user = link;
+        
     } else cout << "Error: pull id not valid" << endl;
 }
 
