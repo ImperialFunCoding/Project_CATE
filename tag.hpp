@@ -77,14 +77,14 @@ public:
         vector<string> attrs=this->attrKeys();
         return attrs.size();
     }
-    bool hasAttr(string key){
+    int attrPos(string key){
         vector<string> keys=this->attrKeys();
         for(int i=0; i<keys.size();i++){
             if(keys[i]==key){
-                return true;
+                return i;
             }
         }
-        return false;
+        return -1;
     }
     string attrKey(int n){
         vector<string> keys=this->attrKeys();

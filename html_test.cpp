@@ -13,13 +13,27 @@ int main(){
     string period="1";
     string user = "cmy14";
     string url ="https://cate.doc.ic.ac.uk/timetable.cgi?period=1&class=c1&keyt=2014%3Anone%3Anone%3Acmy14";
-    string header= "";//getHeader(CATE_URL,user);
+    string header=html.header;
     //fetch moduleIds and moduleNames
     Curl curl(url,header);
+    int bgcolorPos,colspanPos,rowspanPos;
+    string currentMod;
     for(int i=0; i<curl.tags.size(); i++){
         if(curl.tags[i].name()=="td" && curl.tags[i].attrSize()>1){
-            if(curl.tags[i].hasAttr("bgcolor") && curl.tags[i].hasAttr("colspan")){
-                cout<<curl.tags[i].tag<<curl.contents[i+3]<<endl;
+            bgcolorPos=curl.tags[i].attrPos("bgcolor");
+            colspanPos=curl.tags[i].attrPos("colspan");
+            rowspanPos=curl.tags[i].attrPos("rowspan");
+            if(bgcolorPos>=0 && colspanPos>=0){
+                if(curl.tags[i].attrValue(bgcolorPos)=="#cdcdcd"
+                 ||curl.tags[i].attrValue(bgcolorPos)=="#ccffcc"
+                 ||curl.tags[i].attrValue(bgcolorPos)=="white"){
+                    cout<<curl.tags[i].tag<<curl.contents[i]<<endl;
+                    cout<<currentMod<<" "<<curl.contents[i+3]<<endl;
+                }
+            }else if(rowspanPos>=0){
+                if(curl.contents[i+3].length()>3){
+                    currentMod=curl.contents[i+3].substr(2);
+                }
             }
         }
     }
