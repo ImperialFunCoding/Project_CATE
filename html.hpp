@@ -61,7 +61,6 @@ public:
                 break;
             case 's':
                 assert(id!="");
-//                https://cate.doc.ic.ac.uk/showfile.cgi?key=2014:1:502:c1:SPECS:cmy14
                 string type;
                 switch(id[0]){
                     case 'n':
@@ -122,6 +121,18 @@ public:
             }
         }
         return nameStack;    
+    }
+
+    vector<string> getNotesType(vector<Tag> tags, vector<string> contents){
+        vector<string> typeStack;
+        for (int i = 0; i < tags.size(); i++){
+            for(int j=0; j<tags[i].attrSize(); j++){
+                if(fileName(tags[i].attrValue(j))=="showfile.cgi"){
+                    typeStack.push_back(contents[i+3]);
+                }
+            }
+        }
+        return typeStack;
     }
 
     vector<string> getModuleIds(vector<Tag> tags){
@@ -223,13 +234,14 @@ public:
         modNum= modNames.size();
         for(int i=0; i<modNames.size(); i++){
             if(modIds.size()>i && atoi(modIds[i].c_str())>0){
-                Curl curl_notes("https://cate.doc.ic.ac.uk/notes.cgi?key=2014:"+modIds[i]+":1:c1:new:cmy14",header);
+                Curl curl_notes(CATE_URL+"notes.cgi?key=2014:"+modIds[i]+":"+period+":"+cl+":new:"+user,header);
                 vector<string> noteIds= this->getShowfileIds(curl_notes.tags);
                 vector<string> noteNames = this->getShowfileNames(curl_notes.tags,curl_notes.contents);
                 vector<string> noteURLs = this->getShowfileURLs(curl_notes.tags);
+                vector<string> noteTypes = this->getNotesType(curl_notes.tags,curl_notes.contents);
                 vector<Notes> notes;
                 for(int j=0; j<noteIds.size();j++){
-                    Notes note("n"+noteIds[j],noteNames[j],noteURLs[j]);
+                    Notes note("n"+noteIds[j],noteNames[j],noteURLs[j], noteTypes[j]);
                     notes.push_back(note);
                 }
                 Module mod(modIds[i],modNames[i],notes,noteIds.size());

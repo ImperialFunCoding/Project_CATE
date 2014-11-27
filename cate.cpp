@@ -259,9 +259,11 @@ void runMod(string modNum) {
                 string id;
                 string name;
                 string link;
+                string type;
                 getline(mods, id);
                 getline(mods, name);
                 getline(mods, link);
+                getline(mods, type);
                 
                 if (id.empty()) break;
                 
@@ -303,6 +305,7 @@ void runPull(string id) {
 
             getline(note, name);
             getline(note, link);
+            getline(note, fileType);
 
             //cout << link << endl;
         }
@@ -310,11 +313,11 @@ void runPull(string id) {
         //get username from link
         string user = link.substr(link.find(":NOTES:"));
         user = user.substr(7);
-        string saveAs = "";
-        string pullCommand = "curl -s --user " + user + " \"" + link +"\"" + saveAs;
+        string saveAs = " > \"" + name + "." + fileType + "\"";
+        string pullCommand = "curl -s -H \""+ getHeader(CATE_URL,user) +"\" \"" + link +"\"" + saveAs;
         //cout << pullCommand << endl;
         cout << "Pulling file for " + user + "." << endl;
-        //system(pullCommand.c_str());
+        system(pullCommand.c_str());
 
     } else if (id[0] == 's') {
         
@@ -349,6 +352,8 @@ void runPull(string id) {
 bool isValidClass(string cl) {
     //Temporary value
     return (cl == "c1" || cl == "c2" || cl == "c3");
+    //if (!(cl.length() == 2)) return false;
+    //if (c[0] == 'c' ||
 }
 
 bool isValidPeriod(string period) {
