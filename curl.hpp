@@ -18,20 +18,28 @@ string fileName(string url){
 }
 string getHeader(string url, string user){
     FILE *f;
-    string command = "curl -s "
-        "-u \""+user+"\" "
-        "--trace-ascii - \""+url+"\" | grep Authorization:";
-    char buff[512];
+    int i;
     string header = "";
+    do{
+        i=0;
+        header = "";
+        string command = "curl -s "
+            "-u \""+user+"\" "
+            "--trace-ascii - \""+url+"\" | grep \"Authorization:\\|401\\ Authorization\\ Required\"";
+        char buff[512];
 
-    if(!(f = popen(command.c_str(), "r"))){
-        return "ERROR IN CALLING CURL. INVALID COMMAND.";
-    }
+        if(!(f = popen(command.c_str(), "r"))){
+            return "ERROR IN CALLING CURL. INVALID COMMAND.";
+        }
 
-    while(fgets(buff, sizeof(buff), f)!=NULL){
-        header += buff;
-    }
-    pclose(f);
+        while(fgets(buff, sizeof(buff), f)!=NULL){
+            header += buff;
+            if(header[header.size()-1]=='\n'){
+                i++;
+            }
+        }
+        pclose(f);
+    }while(i!=1);
     header = header.substr(6);
     return header;
 }  
