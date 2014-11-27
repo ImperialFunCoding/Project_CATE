@@ -206,7 +206,7 @@ public:
         //Class constructor here
         
         // The constructor for the Assignment class is:
-        // Assignment(string n_id, string n_name, bool n_counted, string n_dueDate, string n_link);
+        // Assignment(string n_id, string n_name, string n_type, string n_dueDate, string n_link);
         // Note: the n_counted variable denotes if the assigment is green on cate
         // Note: string dueDate in the format: "23 May 2014"
         
