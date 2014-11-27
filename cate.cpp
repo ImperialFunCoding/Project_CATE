@@ -192,6 +192,7 @@ void runUpdate() {
                 mod << allMods[i].getNotes()[k].getID() << endl;
                 mod << allMods[i].getNotes()[k].getName() << endl;
                 mod << allMods[i].getNotes()[k].getLink() << endl;
+                mod << allMods[i].getNotes()[k].getType() << endl;
             }
             mod << endl;
         }
