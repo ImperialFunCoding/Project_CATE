@@ -145,15 +145,14 @@ void runUpdate() {
     string cl = cp[0];
     string pd = cp[1];
     
-    Html html(cl, pd, username);
-    Assignment* allAss = html.getAssignments();
-    Module* allMods = html.getModules();
+    //Html html(cl, pd, username);
+    //Assignment* allAss = html.getAssignments();
+    //Module* allMods = html.getModules();
     
-    /*
+    
     Assignment allASS[] = {Assignment("125s", "Maths", true, "11 October 2014", "www.google.com"), Assignment("345s", "Physics", false, "25 December 2014", "www.facebook.com") };
     
     Assignment* allAss = allASS;
-    */
     
     ofstream ass(assPath);
     if (ass.is_open()) {
@@ -163,20 +162,14 @@ void runUpdate() {
     }
     ass.close();
     
-    /*
-    Notes notesFrench[] = {Notes("317n", "Notes F1", "www.hotmail.com"), Notes("715n", "Notes F2", "www.espn.com")};
-    Notes notesSpanish[] = {Notes("654n", "Notes S1", "www.hello.com"), Notes("976n", "Notes S2", "www.hola.com")};
     
-    Module allMODS[] = {Module("131.1", "French", notesFrench, 2), Module("135.1", "Spanish", notesSpanish, 2)};
+    Notes notesFrench[] = {Notes("317", "Notes F1", "www.hotmail.com"), Notes("715", "Notes F2", "www.espn.com")};
+    Notes notesSpanish[] = {Notes("654", "Notes S1", "www.hello.com"), Notes("976", "Notes S2", "www.hola.com")};
+    
+    Module allMODS[] = {Module("1", "French", notesFrench, 2), Module("2", "Spanish", notesSpanish, 2)};
     
     Module* allMods = allMODS;
-    */
     
-    /*
-    for (int i = 0; i < 2; i++) {
-        cout << allMods[i].noteSize() << endl;
-    }
-    */
     
     ofstream mod(modPath);
     if (mod.is_open()) {
@@ -229,9 +222,38 @@ void runAllMods() {
 
 void runMod(string modNum) {
     //Temporary result
-    cout << "Listing given module" << endl;
+    //cout << "Listing given module" << endl;
     
-    
+    ifstream mods(modPath);
+    if (mods.is_open()) {
+        bool found = false;
+        while(!mods.eof()) {
+            string line;
+            getline(mods, line);
+            if (line == modNum) {found = true; break;}
+        }
+        if (found) {
+            string name;
+            getline(mods, name);
+            
+            cout << "Module: " << name << endl;
+            cout << left << setw(5) << "ID" << "Name" << endl;
+            
+            while(!mods.eof()) {
+                string id;
+                string name;
+                string link;
+                getline(mods, id);
+                getline(mods, name);
+                getline(mods, link);
+                
+                if (id.empty()) break;
+                
+                cout << setw(5) << id << name << endl;
+            }
+        } else cout << "Module not found" << endl;
+    }
+    mods.close();
 }
 
 bool isValidID(string id) {
@@ -251,7 +273,7 @@ bool isValidClass(string cl) {
 
 bool isValidPeriod(string period) {
     //Temporary value
-    return (period == "autumn" || period == "spring");
+    return (period == "1" || period == "2");
 }
 
 void runSet(string cl, string period) {
@@ -312,7 +334,7 @@ void initAttributes() {
     ofstream att;
     att.open(attPath);
     if (att.is_open()) {
-        att << "c1\n" << "autumn";
+        att << "c1\n" << "1";
     }
     att.close();
 }
