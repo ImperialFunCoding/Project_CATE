@@ -1,26 +1,36 @@
+#include <iostream>
+
+using namespace std;
+
 class Notes {
     
 public:
-    Notes(std::string n_id, std::string n_name, std::string n_link) {
+    Notes(string n_id, string n_name, string n_link, string n_fileType) {
         id = n_id;
         name = n_name;
         link = n_link;
+        fileType = n_fileType;
     }
     
-    std::string getID() {
+    string getID() {
         return id;
     }
     
-    std::string getName() {
+    string getName() {
         return name;
     }
     
-    std::string getLink() {
+    string getLink() {
         return link;
+    }
+    
+    std::string getType() {
+        return fileType;
     }
 
 private:
-    std::string id;
-    std::string name;
-    std::string link;
+    string id;
+    string name;
+    string link;
+    string fileType;
 };

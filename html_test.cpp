@@ -9,12 +9,6 @@ using namespace std;
 int main(){
     Html html("c1","1","cmy14");
     
-    string cl="c1";
-    switch(cl[0]){
-        case 'c':
-            cout<<"hihi"<<endl;
-            break;
-    }
     string period="1";
     string user = "cmy14";
     string url ="https://cate.doc.ic.ac.uk/timetable.cgi?period=1&class=c1&keyt=2014%3Anone%3Anone%3Acmy14";

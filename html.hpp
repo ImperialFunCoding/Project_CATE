@@ -238,9 +238,10 @@ public:
                 vector<string> noteIds= this->getShowfileIds(curl_notes.tags);
                 vector<string> noteNames = this->getShowfileNames(curl_notes.tags,curl_notes.contents);
                 vector<string> noteURLs = this->getShowfileURLs(curl_notes.tags);
+                vector<string> noteTypes = this->getNotesType(curl_notes.tags,curl_notes.contents);
                 vector<Notes> notes;
                 for(int j=0; j<noteIds.size();j++){
-                    Notes note("n"+noteIds[j],noteNames[j],noteURLs[j]);
+                    Notes note("n"+noteIds[j],noteNames[j],noteURLs[j], noteTypes[j]);
                     notes.push_back(note);
                 }
                 Module mod(modIds[i],modNames[i],notes,noteIds.size());
