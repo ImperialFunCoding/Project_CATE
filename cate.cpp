@@ -6,9 +6,9 @@
 #include <stdlib.h>
 #include <iomanip>
 #include <vector>
-//#include "html.hpp"
-#include "assigment.hpp"
-#include "module.hpp"
+#include "html.hpp"
+//#include "assigment.hpp"
+//#include "module.hpp"
 
 
 using namespace std;
@@ -149,18 +149,20 @@ void runUpdate() {
     string cl = cp[0];
     string pd = cp[1];
     
-    //Html html(cl, pd, username);
-    //Assignment* allAss = html.getAssignments();
-    //Module* allMods = html.getModules();
+    Html html(cl, pd, username);
+    vector<Assignment> allAss = html.getAssignments();
+    vector<Module> allMods = html.getModules();
     
     
     //Assignment allASS[] = {Assignment("125s", "Maths", true, "11 October 2014", "www.google.com"), Assignment("345s", "Physics", false, "25 December 2014", "www.facebook.com") };
     
     //Assignment* allAss = allASS;
 
+    /*
     vector<Assignment> allAss;
     allAss.push_back(Assignment("125s", "Maths", true, "11 October 2014", "www.google.com"));
     allAss.push_back(Assignment("345s", "Physics", false, "25 December 2014", "www.facebook.com"));
+    */
     
     ofstream ass(assPath.c_str());
     if (ass.is_open()) {
@@ -178,6 +180,7 @@ void runUpdate() {
     
     //Module* allMods = allMODS;
 
+    /*
     vector<Notes> notesFrench;
     notesFrench.push_back(Notes("317", "Notes F1", "www.hotmail.com"));
     notesFrench.push_back(Notes("715", "Notes F2", "www.espn.com"));
@@ -189,6 +192,7 @@ void runUpdate() {
     vector<Module> allMods;
     allMods.push_back(Module("1", "French", notesFrench, 2));
     allMods.push_back(Module("2", "Spanish", notesSpanish, 2));
+    */
     
     ofstream mod(modPath.c_str());
     if (mod.is_open()) {
@@ -283,11 +287,13 @@ bool isValidID(string id) {
 void runPull(string id) {
     //Temporary result
     cout << "Pulled file" << endl;
+
+    //ifstream pull()
 }
 
 bool isValidClass(string cl) {
     //Temporary value
-    return (cl == "c1" || cl == "c2");
+    return (cl == "c1" || cl == "c2" || cl == "c3");
 }
 
 bool isValidPeriod(string period) {

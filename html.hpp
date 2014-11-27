@@ -147,7 +147,7 @@ public:
     string header;
 
     int modNum;
-    Module* modules;
+    vector<Module> modules;
    
     Html(string c, string p, string u) {
         //Class constructor here
@@ -187,23 +187,23 @@ public:
                 vector<string> noteURLs = this->getShowfileURLs(curl_notes.tags);
                 vector<Notes> notes;
                 for(int j=0; j<noteIds.size();j++){
-                    Notes note(noteIds[j],noteNames[j],noteURLs[j]);
+                    Notes note("n"+noteIds[j],noteNames[j],noteURLs[j]);
                     notes.push_back(note);
                 }
-                Module mod(modIds[i],modNames[i],&notes[0],noteIds.size());
+                Module mod(modIds[i],modNames[i],notes,noteIds.size());
                 mods.push_back(mod); 
             }else{
-                Module mod("-1",modNames[i],NULL ,0);
+                Module mod("-1",modNames[i],vector<Notes>() ,0);
                 mods.push_back(mod); 
             }
         }
-        modules = &mods[0];
+        modules = mods;
     }
     
-    Assignment* getAssignments() {
+    vector<Assignment> getAssignments() {
         // Returns an array of Assignments
         
-        return NULL;
+        return vector<Assignment>();
     }
     
     int assSize() {
@@ -213,7 +213,7 @@ public:
     }
     
     
-    Module* getModules() {
+    vector<Module> getModules() {
         // Returns an array of Modules
         return modules;
     }
