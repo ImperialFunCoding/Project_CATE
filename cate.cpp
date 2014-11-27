@@ -153,15 +153,12 @@ void runUpdate() {
     vector<Assignment> allAss = html.getAssignments();
     vector<Module> allMods = html.getModules();
     
-    
-    //Assignment allASS[] = {Assignment("125s", "Maths", true, "11 October 2014", "www.google.com"), Assignment("345s", "Physics", false, "25 December 2014", "www.facebook.com") };
-    
-    //Assignment* allAss = allASS;
+    cout << "Saving data..." << endl;
 
     /*
     vector<Assignment> allAss;
-    allAss.push_back(Assignment("125s", "Maths", true, "11 October 2014", "www.google.com"));
-    allAss.push_back(Assignment("345s", "Physics", false, "25 December 2014", "www.facebook.com"));
+    allAss.push_back(Assignment("s125", "Maths", true, "11 October 2014", "www.google.com"));
+    allAss.push_back(Assignment("s345", "Physics", false, "25 December 2014", "www.facebook.com"));
     */
     
     ofstream ass(assPath.c_str());
@@ -171,23 +168,15 @@ void runUpdate() {
         }
     }
     ass.close();
-    
-    
-    //Notes notesFrench[] = {Notes("317", "Notes F1", "www.hotmail.com"), Notes("715", "Notes F2", "www.espn.com")};
-    //Notes notesSpanish[] = {Notes("654", "Notes S1", "www.hello.com"), Notes("976", "Notes S2", "www.hola.com")};
-    
-    //Module allMODS[] = {Module("1", "French", notesFrench, 2), Module("2", "Spanish", notesSpanish, 2)};
-    
-    //Module* allMods = allMODS;
 
     /*
     vector<Notes> notesFrench;
-    notesFrench.push_back(Notes("317", "Notes F1", "www.hotmail.com"));
-    notesFrench.push_back(Notes("715", "Notes F2", "www.espn.com"));
+    notesFrench.push_back(Notes("n317", "Notes F1", "www.hotmail.com"));
+    notesFrench.push_back(Notes("n715", "Notes F2", "www.espn.com"));
 
     vector<Notes> notesSpanish;
-    notesSpanish.push_back(Notes("654", "Notes S1", "www.hello.com"));
-    notesSpanish.push_back(Notes("976", "Notes S2", "www.hola.com"));
+    notesSpanish.push_back(Notes("n654", "Notes S1", "www.hello.com"));
+    notesSpanish.push_back(Notes("n976", "Notes S2", "www.hola.com"));
 
     vector<Module> allMods;
     allMods.push_back(Module("1", "French", notesFrench, 2));
@@ -208,6 +197,8 @@ void runUpdate() {
         }
     }
     mod.close();
+
+    cout << "Update complete." << endl;
     
 }
 
@@ -281,14 +272,63 @@ void runMod(string modNum) {
 
 bool isValidID(string id) {
     //Temporary value
-    return (id == "345s");
+    //return (id == "345s");
+    return true;
 }
 
 void runPull(string id) {
     //Temporary result
-    cout << "Pulled file" << endl;
+    //cout << "Pulled file" << endl;
 
-    //ifstream pull()
+    if (id[0] == 'n') {
+
+        ifstream note(modPath.c_str());
+        if (note.is_open()) {
+            bool found = false;
+            while (!note.eof()) {
+                string line;
+                getline(note, line);
+                if (line == id) {found = true; break;}
+            }
+
+            if (!found) {
+                cout << "Error: pull id not valid" << endl;
+                return;
+            }
+
+            string link;
+            getline(note, link);
+            getline(note, link);
+
+            cout << link << endl;
+        }
+        note.close();
+
+    } else if (id[0] == 's') {
+        
+        ifstream spec(modPath.c_str());
+        if (spec.is_open()) {
+            bool found = false;
+            while (!spec.eof()) {
+                string line;
+                getline(spec, line);
+                if (line == id) {found = true; break;}
+            }
+
+            if (!found) {
+                cout << "Error: pull id not valid" << endl;
+                return;
+            }
+
+            string link;
+            getline(spec, link);
+            getline(spec, link);
+
+            cout << link << endl;
+        }
+        spec.close();
+
+    } else cout << "Error: pull id not valid" << endl;
 }
 
 bool isValidClass(string cl) {
