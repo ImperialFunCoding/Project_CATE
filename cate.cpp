@@ -18,7 +18,7 @@ using namespace std;
 /* All possible cate commands:
      cate update
      cate set <class> <period>
-     cate pull <id>
+     cate pull <ids>
      cate mods [modnumber]
      cate ass [-a]
      cate --help
@@ -136,7 +136,8 @@ void runAllMods();
 void runMod(string modNum);
 
 bool isValidID(string id);
-void runPull(string id);
+void runAllPull(char *argv[], int size);
+void runPull(string id, string header);
 
 bool isValidClass(string cl);
 bool isValidPeriod(string period);
@@ -153,7 +154,7 @@ string* getClassPeriod();
 void runSubmit(string id);
 
 int main(int argc, char *argv[]) {
-    if (argc > 4 || argc == 1) {
+    if (argc == 1) {
         cout << "Incorrect usage, see 'cate --help' for more information" << endl;
         return 1;
     }
@@ -195,12 +196,9 @@ void execCommand(int size, char *argv[]) {
         } else cout << "Correct usage: cate set <class> <period>" << endl;
         
     } else if (string(argv[1]) == PULL) {
-        
-        if (size == 3) {
-            if (isValidID(string(argv[2]))) {
-                runPull(string(argv[2]));
-            } else cout << "Error: pull id not valid" << endl;
-        } else cout << "Correct usage: cate pull <id>" << endl;
+        if (size > 2) {
+            runAllPull(argv, size);
+        } else cout << "Correct usage: cate pull <ids>" << endl;
         
     } else if (string(argv[1]) == MODS) {
         
@@ -404,7 +402,19 @@ bool isValidID(string id) {
     return true;
 }
 
-void runPull(string id) {
+void runAllPull(char *argv[], int size) {
+    
+    string user;
+    cout << "Please enter cate username" << endl;
+    getline(cin, user);
+    string header = getHeader(CATE_URL, user);
+    
+    for (int i = 2; i < size; i++) {
+        runPull(string(argv[i]), header);
+    }
+}
+
+void runPull(string id, string header) {
     //Temporary result
     //cout << "Pulled file" << endl;
 
@@ -438,7 +448,7 @@ void runPull(string id) {
         string user = link.substr(link.find(":NOTES:"));
         user = user.substr(7);
         string saveAs = " > \"" + name + "." + fileType + "\"";
-        string pullCommand = "curl -s -H \""+ getHeader(CATE_URL,user) +"\" \"" + link +"\"" + saveAs;
+        string pullCommand = "curl -s -H \""+ header +"\" \"" + link +"\"" + saveAs;
         //cout << pullCommand << endl;
         cout << "Pulling file for " + user + "." << endl;
         system(pullCommand.c_str());
@@ -474,7 +484,7 @@ void runPull(string id) {
         string user = link.substr(link.find(":SPECS:"));
         user = user.substr(7);
         string saveAs = " > \"" + name + "." + "pdf\"";
-        string pullCommand = "curl -s -H \""+ getHeader(CATE_URL,user) +"\" \"" + link +"\"" + saveAs;
+        string pullCommand = "curl -s -H \""+ header +"\" \"" + link +"\"" + saveAs;
         //cout << pullCommand << endl;
         cout << "Pulling file for " + user + "." << endl;
         system(pullCommand.c_str());
@@ -530,13 +540,14 @@ void runCurrAss() {
         string today = day + " " + mon + " " + year;
         //cout << today << endl;
         
-        cout << left << setw(6) << "ID" << setw(30) << "Name" << setw(10) << "A/U" << setw(15) << "Due Date" << setw(20) << "Module" << endl;
+        cout << left << setw(6) << "ID" << setw(28) << "Name" << setw(10) << "A/U" << setw(13) << "Due Date" << setw(20) << "Module" << endl;
         
         while (!ass.eof()) {
             string id;
             getline(ass, id);
             string name;
             getline(ass, name);
+            if (name.length() > 27) name = name.substr(0, 24) + "...";
             string assType;
             getline(ass, assType);
             string dueDate;
@@ -551,11 +562,12 @@ void runCurrAss() {
             getline(ass, submitID);
             string module;
             getline(ass, module);
+            if (module.length() > 22) module = module.substr(0, 19) + "...";
             
             //Print ass if due date has not passed
             if (numDate(today) <= numDate(dueDate)) {
                 if (numDate(today) == numDate(dueDate)) dueDate = "Today";
-                cout << left << setw(6) << id << setw(30) << name << setw(10) << assType << setw(15) << dueDate << setw(20)<< module << endl;
+                cout << left << setw(6) << id << setw(28) << name << setw(10) << assType << setw(13) << dueDate << setw(20)<< module << endl;
             }
 
         }
@@ -588,7 +600,7 @@ string stringDate(int date) {
 
 void runAllAss() {
     //cout << "Listing all assigments:\n" << endl;
-    cout << left << setw(6) << "ID" << setw(30) << "Name" << setw(10) << "A/U" << setw(15) << "Due Date" << setw(20) << "Module" << endl;
+    cout << left << setw(6) << "ID" << setw(28) << "Name" << setw(10) << "A/U" << setw(13) << "Due Date" << setw(20) << "Module" << endl;
     ifstream fin(assPath.c_str());
     if (fin.is_open()) {
         while (!fin.eof()) {
@@ -596,6 +608,7 @@ void runAllAss() {
             getline(fin, id);
             string name;
             getline(fin, name);
+            if (name.length() > 27) name = name.substr(0, 24) + "...";
             string assType;
             getline(fin, assType);
             if (assType == "green") assType = "A";
@@ -611,8 +624,9 @@ void runAllAss() {
             getline(fin, submitID);
             string module;
             getline(fin, module);
+            if (module.length() > 22) module = module.substr(0, 19) + "...";
             
-            cout << left << setw(6) << id << setw(30) << name << setw(10) << assType << setw(15) << dueDate << setw(20)<< module << endl;
+            cout << left << setw(6) << id << setw(28) << name << setw(10) << assType << setw(13) << dueDate << setw(20)<< module << endl;
         }
         fin.close();
     } else cout << "No Assignments to show" << endl;
@@ -668,6 +682,11 @@ void runSubmit(string id) {
         getline(ass, submitID);
         getline(ass, submitID);
         getline(ass, submitID);
+        
+        if (submitID == "-1") {
+            cout << "This ID is not valid." << endl;
+            return;
+        }
         
         string* cp = getClassPeriod();
         string cl = cp[0];

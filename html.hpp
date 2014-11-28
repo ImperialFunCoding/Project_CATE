@@ -27,6 +27,7 @@ using namespace std;
 
 static string* declaration(string user, string cl, string period, string sId){
     string header = getHeader(CATE_URL,user);
+    cout<<endl<<"Submiting empty declaration..."<<endl;
     string url ="https://cate.doc.ic.ac.uk/handins.cgi?key=2014:"+period+":"+sId+":"+cl+":new:"+user;
     Curl curl_inLeader(url,header);
     string inLeader;
@@ -70,18 +71,24 @@ static void submit(string user, string cl, string period, string sId){
     string header = array[0];
     string hardcover = array[1];
     string url ="https://cate.doc.ic.ac.uk/handins.cgi?key=2014:"+period+":"+sId+":"+cl+":new:"+user;
+    cout<<endl;
     if(hardcover==""){
         vector<string> forms2;
         forms2.push_back("key=2014:1:23:c1:submit:cmy14");
         forms2.push_back("file-516-none=@cate_token.txt");
         string command = "git rev-parse HEAD > cate_token.txt";
         system(command.c_str());
+        cout<<"Submiting cate_token.txt..."<<endl;
         Curl submit(url,header,forms2);
+        cout<<endl;
         system("rm cate_token.txt");
         return;
     } else{
-        string command = "curl -s -H "+header+" "+hardcover+">hardcover.ps";
+        cout<<"Downloading hard cover..."<<endl;
+        cout<<"Fetching "+hardcover<<endl;
+        string command = "curl -s -H "+header+" "+hardcover+">hardcover-"+sId+".ps";
         system(command.c_str());
+        cout<<"Hardcover fetched at: ./hardcover-"+sId+".ps"<<endl<<endl;
         return;
     }
 }
