@@ -25,20 +25,20 @@ using namespace std;
 */
 
 //global map for months
-map <int, string> stringMonths;
+map <string, string> stringMonths;
 void setStringMonths() {
-    stringMonths[1]  = "Jan";
-    stringMonths[2]  = "Feb";
-    stringMonths[3]  = "Mar";
-    stringMonths[4]  = "Apr";
-    stringMonths[5]  = "May";
-    stringMonths[6]  = "Jun";
-    stringMonths[7]  = "Jul";
-    stringMonths[8]  = "Aug";
-    stringMonths[9]  = "Sep";
-    stringMonths[10] = "Oct";
-    stringMonths[11] = "Nov";
-    stringMonths[12] = "Dec";
+    stringMonths["01"]  = "Jan";
+    stringMonths["02"]  = "Feb";
+    stringMonths["03"]  = "Mar";
+    stringMonths["04"]  = "Apr";
+    stringMonths["05"]  = "May";
+    stringMonths["06"]  = "Jun";
+    stringMonths["07"]  = "Jul";
+    stringMonths["08"]  = "Aug";
+    stringMonths["09"]  = "Sep";
+    stringMonths["10"] = "Oct";
+    stringMonths["11"] = "Nov";
+    stringMonths["12"] = "Dec";
 }
 
 map <string, string> numMonths;
@@ -86,6 +86,7 @@ bool elem(string e, string elems[], int size);
 void execCommand(int size, char *argv[]);
 
 void runUpdate();
+bool isBefore(Assignment a1, Assignment a2);
 
 void runHelp();
 
@@ -197,14 +198,18 @@ void runUpdate() {
 
     /*
     vector<Assignment> allAss;
-    allAss.push_back(Assignment("s125", "Maths", "green", "11 October 2014", "www.google.com"));
-    allAss.push_back(Assignment("s345", "Physics", "white", "25 December 2014", "www.facebook.com"));
+    allAss.push_back(Assignment("s125", "Maths", "green", "11 Dec 2014", "www.google.com", "123", "m"));
+    allAss.push_back(Assignment("s345", "Physics", "white", "25 Nov 2014", "www.facebook.com", "123", "m"));
     */
+     
+    setNumMonths();
+    
+    sort(allAss.begin(), allAss.end(), isBefore);
     
     ofstream ass(assPath.c_str());
     if (ass.is_open()) {
-        for (int i = (int) allAss.size() - 1; i > 0; i--) {
-            ass << allAss[i].getID() << endl << allAss[i].getName() << endl << allAss[i].assType() << endl  << allAss[i].getDueDate() << endl << allAss[i].getLink() << endl << allAss[i].getSubmitID() << allAss[i].getModule() << endl;
+        for (int i = 0; i < allAss.size(); i++) {
+            ass << allAss[i].getID() << endl << allAss[i].getName() << endl << allAss[i].assType() << endl  << allAss[i].getDueDate() << endl << allAss[i].getLink() << endl << allAss[i].getSubmitID() << endl << allAss[i].getModule() << endl;
         }
     }
     ass.close();
@@ -241,6 +246,10 @@ void runUpdate() {
 
     cout << "Update complete." << endl;
     
+}
+
+bool isBefore(Assignment a1, Assignment a2) {
+    return numDate(a1.getDueDate()) < numDate(a2.getDueDate());
 }
 
 void runHelp() {
@@ -362,6 +371,7 @@ void runPull(string id) {
     } else if (id[0] == 's') {
         
         string link;
+        string name;
         ifstream spec(modPath.c_str());
         if (spec.is_open()) {
             bool found = false;
@@ -375,16 +385,24 @@ void runPull(string id) {
                 cout << "Error: pull id not valid" << endl;
                 return;
             }
-
+            
+            getline(spec, name);
+            getline(spec, link);
             getline(spec, link);
             getline(spec, link);
 
             //cout << link << endl;
         }
         spec.close();
-        //getusername from link
+        //get username from link
         string user = link.substr(link.find(":SPECS:"));
-        //cout << user << endl;
+        user = user.substr(7);
+        string saveAs = " > \"" + name + "." + "pdf\"";
+        string pullCommand = "curl -s -H \""+ getHeader(CATE_URL,user) +"\" \"" + link +"\"" + saveAs;
+        //cout << pullCommand << endl;
+        cout << "Pulling file for " + user + "." << endl;
+        system(pullCommand.c_str());
+
         
     } else cout << "Error: pull id not valid" << endl;
 }
@@ -420,8 +438,12 @@ void runCurrAss() {
     //Temporary result
     //cout << "Listing current assignments" << endl;
     
-    ifstream ass(assPath);
+    
+    ifstream ass(assPath.c_str());
     if (ass.is_open()) {
+        
+        setNumMonths();
+        //setStringMonths();
         
         //Converting system time to today's date
         time_t now = time(0);
@@ -432,7 +454,7 @@ void runCurrAss() {
         string today = day + " " + mon + " " + year;
         //cout << today << endl;
         
-        cout << left << setw(4) << "ID" << setw(15) << "Name" << setw(20) << "Type" << setw(15) << "Due Date" << setw(20) << "Module" << endl;
+        cout << left << setw(6) << "ID" << setw(15) << "Name" << setw(20) << "Type" << setw(15) << "Due Date" << setw(20) << "Module" << endl;
         
         while (!ass.eof()) {
             string id;
@@ -452,11 +474,11 @@ void runCurrAss() {
             
             //Print ass if due date has not passed
             if (numDate(today) < numDate(dueDate)) {
-                cout << left << id << setw(15) << name << setw(20) << assType << setw(15) << dueDate << setw(20)<< module << endl;
+                cout << left << setw(6) << id << setw(15) << name << setw(20) << assType << setw(15) << dueDate << setw(20)<< module << endl;
             }
 
         }
-        cout << numDate(today) << endl;
+        //cout << stringDate(20140511) << endl;
     } else cout << "No Assignments to show" << endl;
     
 }
@@ -468,19 +490,20 @@ int numDate(string date) {
     string day = date.substr(0, 2);
     string mon = date.substr(3, 3);
     string year = date.substr(7, 4);
-    //cout << year << mon << day << endl;
+    //cout << numMonths[mon] << endl;
     string newDate = year + numMonths[mon] + day;
     return stoi(newDate);
 }
 
 //Gives date in the form "dd mon yyyy"
 string stringDate(int date) {
-    return "";
+    string strDate = to_string(date);
+    return strDate.substr(6, 2) + " " + stringMonths[strDate.substr(4, 2)] + " " + strDate.substr(0, 4);
 }
 
 void runAllAss() {
     //cout << "Listing all assigments:\n" << endl;
-    cout << left << setw(4) << "ID" << setw(15) << "Name" << setw(20) << "Type" << setw(15) << "Due Date" << setw(20) << "Module" << endl;
+    cout << left << setw(6) << "ID" << setw(15) << "Name" << setw(20) << "Type" << setw(15) << "Due Date" << setw(20) << "Module" << endl;
     ifstream fin(assPath.c_str());
     if (fin.is_open()) {
         while (!fin.eof()) {
@@ -502,7 +525,7 @@ void runAllAss() {
             string module;
             getline(fin, module);
             
-            cout << left << id << setw(15) << name << setw(20) << assType << setw(15) << dueDate << setw(20)<< module << endl;
+            cout << left << setw(6) << id << setw(15) << name << setw(20) << assType << setw(15) << dueDate << setw(20)<< module << endl;
         }
         
     } else cout << "No Assignments to show" << endl;
