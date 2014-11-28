@@ -60,6 +60,11 @@ public:
             html += buff;
         }
         pclose(f);
+
+        if(html==""){
+            cout<<"ERROR: Please make sure your input is correct."<<endl;
+            exit(0);
+        }
         //end fetch data
         //split html
         tags = this->get_tags();
