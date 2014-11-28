@@ -22,6 +22,8 @@ using namespace std;
      cate mods [modnumber]
      cate ass [-a]
      cate --help
+     cate submit <id>
+     cate getcover <id>
 */
 
 //global map for months
@@ -113,11 +115,13 @@ const string PULL   = "pull";
 const string MODS   = "mods";
 const string ASS    = "ass";
 const string HELP   = "--help";
+const string SUBMIT = "submit";
+const string GETCOVER = "getcover";
 
-string validCommands[] = {UPDATE, SET, PULL, MODS, ASS, HELP};
+string validCommands[] = {UPDATE, SET, PULL, MODS, ASS, HELP, SUBMIT, GETCOVER};
 
 // Function declarations
-bool attFileExists();
+bool fileExists(string path);
 void initAttributes();
 
 bool elem(string e, string elems[], int size);
@@ -146,17 +150,19 @@ void runAllAss();
 
 string* getClassPeriod();
 
+void runSubmit(string id);
+
 int main(int argc, char *argv[]) {
     if (argc > 4 || argc == 1) {
         cout << "Incorrect usage, see 'cate --help' for more information" << endl;
         return 1;
     }
     
-    if (!attFileExists()) {
+    if (!fileExists(attPath)) {
         initAttributes();
     }
     
-    if (elem(string(argv[1]), validCommands, 6)) {
+    if (elem(string(argv[1]), validCommands, 8)) {
        execCommand(argc, argv);
     }
     else {
@@ -214,6 +220,21 @@ void execCommand(int size, char *argv[]) {
         
         if (size == 2) runHelp();
         else cout << "Correct usage: cate --help" << endl;
+        
+    } else if (string(argv[1]) == SUBMIT) {
+        
+        if (size == 3) {
+            if (fileExists(".git/HEAD")) {
+                runSubmit(argv[2]);
+            } else cout << "You are not in a git repository" << endl;
+        } else cout << "Correct usage: cate submit <id>" << endl;
+        
+    } else if (string(argv[1]) == GETCOVER) {
+        
+        if (size == 3) {
+                //Executes the same function as submit
+                runSubmit(argv[2]);
+        } else cout << "Correct usage: cate getcover <id>" << endl;
         
     } else cout << "Impossible!" << endl;
 }
@@ -328,6 +349,11 @@ void runAllMods() {
 void runMod(string modNum) {
     //Temporary result
     //cout << "Listing given module" << endl;
+    int charInt = (int) modNum[0];
+    if (charInt < 48 || charInt > 57) {
+        cout << "No such module" << endl;
+        return;
+    }
     
     ifstream mods(modPath.c_str());
     if (mods.is_open()) {
@@ -338,27 +364,35 @@ void runMod(string modNum) {
             if (line == modNum) {found = true; break;}
         }
         if (found) {
-            string name;
-            getline(mods, name);
+            string modName;
+            getline(mods, modName);
             
-            cout << "Module: " << name << endl;
-            cout << left << setw(5) << "ID" << "Name" << endl;
+            bool needTitle = true;
             
             while(!mods.eof()) {
+                
                 string id;
                 string name;
                 string link;
                 string type;
                 getline(mods, id);
+                if (id.empty()) break;
+                
+                if (needTitle) {
+                    cout << "Module: " << modName << endl;
+                    cout << left << setw(5) << "ID" << "Name" << endl;
+                    needTitle = false;
+                }
+                
                 getline(mods, name);
                 getline(mods, link);
                 getline(mods, type);
                 
-                if (id.empty()) break;
-                
                 cout << setw(5) << id << name << endl;
             }
-        } else cout << "Module not found" << endl;
+            if (needTitle) cout << "No notes to show" << endl;
+            
+        } else cout << "No such module" << endl;
     }
     mods.close();
 }
@@ -518,12 +552,14 @@ void runCurrAss() {
             getline(ass, module);
             
             //Print ass if due date has not passed
-            if (numDate(today) < numDate(dueDate)) {
+            if (numDate(today) <= numDate(dueDate)) {
+                if (numDate(today) == numDate(dueDate)) dueDate = "Today";
                 cout << left << setw(6) << id << setw(30) << name << setw(10) << assType << setw(15) << dueDate << setw(20)<< module << endl;
             }
 
         }
         //cout << stringDate(20140511) << endl;
+        ass.close();
     } else cout << "No Assignments to show" << endl;
     
 }
@@ -576,13 +612,13 @@ void runAllAss() {
             
             cout << left << setw(6) << id << setw(30) << name << setw(10) << assType << setw(15) << dueDate << setw(20)<< module << endl;
         }
-        
+        fin.close();
     } else cout << "No Assignments to show" << endl;
 }
 
-bool attFileExists() {
+bool fileExists(string path) {
     ifstream f;
-    f.open(attPath.c_str());
+    f.open(path.c_str());
     return f.good();
 }
 
@@ -606,6 +642,46 @@ string* getClassPeriod() {
     }
     f.close();
     return cp;
+}
+
+void runSubmit(string id) {
+    
+    ifstream ass(assPath);
+    if (ass.is_open()) {
+        bool found = false;
+        while (!ass.eof()) {
+            string line;
+            getline(ass, line);
+            if (line == id) {found = true; break;}
+        }
+        
+        if (!found) {
+            cout << "id not valid for submission" << endl;
+            return;
+        }
+        
+        string submitID;
+        getline(ass, submitID);
+        getline(ass, submitID);
+        getline(ass, submitID);
+        getline(ass, submitID);
+        getline(ass, submitID);
+        
+        string* cp = getClassPeriod();
+        string cl = cp[0];
+        string pd = cp[1];
+        
+        cout << "Please enter your cate username:" << endl;
+        string user;
+        getline(cin, user);
+        
+        cout << "Submitting a blank declaration for the assignment." << endl;
+        cout << "If you have any declarations to add, add them on the cate website." << endl;
+        //Html.submit(user, cl, pd, submitID);
+        
+        
+    } else cout << "Cannot submit assignment" << endl;
+    
 }
 
 
