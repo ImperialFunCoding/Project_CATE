@@ -80,7 +80,7 @@ static void submit(string user, string cl, string period, string sId){
         system("rm cate_token.txt");
         return;
     } else{
-        string command = "curl -s -u "+user+" "+hardcover+">hardcover.ps";
+        string command = "curl -s -H "+header+" "+hardcover+">hardcover.ps";
         system(command.c_str());
         return;
     }
