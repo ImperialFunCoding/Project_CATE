@@ -24,14 +24,70 @@ curl -u user -F "key=2014:1:23:"+cl+":submit:"+user -F "file-516-none=@cate_toke
 
 using namespace std;
 
-const string CATE_URL= "https://cate.doc.ic.ac.uk/";
+
+static string* declaration(string user, string cl, string period, string sId){
+    string header = getHeader(CATE_URL,user);
+    string url ="https://cate.doc.ic.ac.uk/handins.cgi?key=2014:"+period+":"+sId+":"+cl+":new:"+user;
+    Curl curl_inLeader(url,header);
+    string inLeader;
+    string* array=new string[2];
+    array[0] = header;
+    for(int i=0; i<curl_inLeader.tags.size();i++){
+        if(curl_inLeader.tags[i].name()=="input"){
+            if(curl_inLeader.tags[i].attrPos("name")>=0){
+                int pos = curl_inLeader.tags[i].attrPos("name");
+                if(curl_inLeader.tags[i].attrValue(pos)=="inLeader"){
+                    int pos = curl_inLeader.tags[i].attrPos("value");
+                    inLeader = curl_inLeader.tags[i].attrValue(pos);
+                }
+            }
+        }
+        if(curl_inLeader.tags[i].findLink("hardcover.cgi")!=""){
+            array[1]=curl_inLeader.tags[i].findLink("hardcover.cgi");
+        }
+    }
+    vector<string> forms;
+    forms.push_back("help-0=");
+    forms.push_back("help-1=");
+    forms.push_back("help-2=");
+    forms.push_back("help-3=");
+    forms.push_back("help-4=");
+    forms.push_back("help-5=");
+    forms.push_back("help-6=");
+    forms.push_back("help-7=");
+    forms.push_back("inLeader="+inLeader);
+    forms.push_back("inMember=");
+    forms.push_back("version=0");
+    forms.push_back("key=2014:"+period+":"+sId+":"+cl+":leader:"+user);
+
+    Curl curl_declear(url,header,forms);
+    return array;
+}
+
+static string submit(string user, string cl, string period, string sId){
+    //Pre: .git folder exist
+    string* array = declaration(user,cl,period,sId);
+    string header = array[0];
+    string hardcover = array[1];
+    string url ="https://cate.doc.ic.ac.uk/handins.cgi?key=2014:"+period+":"+sId+":"+cl+":new:"+user;
+    if(hardcover==""){
+        vector<string> forms2;
+        forms2.push_back("key=2014:1:23:c1:submit:cmy14");
+        forms2.push_back("file-516-none=@cate_token.txt");
+        string command = "git rev-parse HEAD > cate_token.txt";
+        system(command.c_str());
+        Curl submit(url,header,forms2);
+        system("rm cate_token.txt");
+        return "-1";
+    } else{
+        return hardcover;
+    }
+}
 
 
 class Html {
     
-public:
-//private:
-    //string manipulation functions
+private:
     string getURL(char p,string id=""){
         string url;
         url = CATE_URL;
@@ -79,44 +135,18 @@ public:
         }
         return url;
     }
-    /*
-    string getId(string link, int pos=1){
-        int colon,colon2;
-        if(pos==0){
-            //start from 6 to skip https://
-            colon2 = link.find_first_of(":",6);
-            colon  = link.find_first_of(":",colon2+1);
-            colon2 = link.find_first_of(":",colon+1);
-            return link.substr(colon+1,colon2-colon-1);
-        }else{
-            
-        }
-    }
-    */
-    //cate related functions
-    //asses
 
-    //modules
-    string findLink(Tag tag,string file){
-        string url="";
-        for (int i = 0; i < tag.attrSize(); i++){
-            if(fileName(tag.attrValue(i))==file){
-                url=CATE_URL+tag.attrValue(i);
-            }
-        }
-        return url;
-    }
     vector<string> findLinks(vector<Tag> tags,string file){
         vector<string> URLStack;
         for (int i = 0; i < tags.size(); i++){
-            if(findLink(tags[i], file)!=""){
-                URLStack.push_back(findLink(tags[i], file));
+            if(tags[i].findLink(file)!=""){
+                URLStack.push_back(tags[i].findLink(file));
             }
         }
         return URLStack;
     }
     string getShowfileId(Tag tag){
-        string URL = this->findLink(tag, "showfile.cgi");
+        string URL = tag.findLink("showfile.cgi");
         int colon,colon2;
         //start from 6 to skip https://
         colon2 = URL.find_first_of(":",6);
@@ -221,7 +251,7 @@ public:
     }
 
     string getHandinsId(Tag tag){
-        string URL = this->findLink(tag, "handins.cgi");
+        string URL = tag.findLink("handins.cgi");
         if(URL!=""){
             int colon,colon2;
             colon2 = URL.find_first_of(":",6);
@@ -326,55 +356,27 @@ public:
         return curMods;
     }
 
-//public:
-    
-    //Implement the following member functions
-
-    /* Since the IDs for specs and notes are different,
-     * set the ID for specs with an 's' at the back,
-     * eg. "345s"
-     * and with an 'n' at the back of notes,
-     * eg. "123n"
-     */
-
+public:
     string cl, period, user;
     string header;
 
-    int modNum;
     vector<Module> modules;
     vector<Assignment> assignments;
    
     Html(string c, string p, string u) {
-        //Class constructor here
-        
-        // The constructor for the Assignment class is:
-        // Assignment(string n_id, string n_name, string n_type, string n_dueDate, string n_link);
-        // Note: the n_counted variable denotes if the assigment is green on cate
-        // Note: string dueDate in the format: "23 May 2014"
-        
-        
-        // The constructor for the Module class is:
-        // Module(string n_modNumber, string n_name, Notes n_notes[], int n_numNotes);
-        // Note: the arguments for the constructor include an array of notes
-        // The constructor for the Notes module is:
-        // Notes(n_id, n_name, n_link);
         cl      = c;
         period  = p;
         user    = u;
+
         //this will ask for password
         header  = getHeader(CATE_URL,user);
-
-        //assignment
-        
-
 
         //module
         Curl curl(this->getURL('t'),header);
         vector<string> modNames=this->getModuleNames(curl.contents);
         vector<string> modIds=this->getModuleIds(curl.tags);
         vector<Module> mods;
-        modNum= modNames.size();
-        for(int i=0; i<modNum; i++){
+        for(int i=0; i<modNames.size(); i++){
             if(modIds.size()>i && atoi(modIds[i].c_str())>0){
                 Curl curl_notes(CATE_URL+"notes.cgi?key=2014:"+modIds[i]+":"+period+":"+cl+":new:"+user,header);
                 vector<string> noteIds= this->getShowfileIds(curl_notes.tags);
@@ -421,37 +423,11 @@ public:
     
     vector<Assignment> getAssignments() {
         // Returns an array of Assignments
-        
         return assignments;
     }
-    
-    int assSize() {
-        //Return the size of the assigments array
-        
-        return 0;
-    }
-    
     
     vector<Module> getModules() {
         // Returns an array of Modules
         return modules;
     }
-    
-    int modSize() {
-        //Return the size of the modules array
-        return modNum;
-    }
-    
-    
-    bool isValidClass(string cl) {
-        //Returns true if the class input eg. "c1", "c2" exists on cate
-        return false;
-    }
-    
-    
-    static bool isValidPeriod(string period) {
-        //Returns true if the period input eg. "autumn", "spring" exists on cate
-        return false;
-    }
-    
 };
