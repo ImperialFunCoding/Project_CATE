@@ -6,6 +6,8 @@
 #include <stdlib.h>
 #include <iomanip>
 #include <vector>
+#include <ctime>
+#include <map>
 #include "html.hpp"
 //#include "assigment.hpp"
 //#include "module.hpp"
@@ -21,6 +23,42 @@ using namespace std;
      cate ass [-a]
      cate --help
 */
+
+//global map for months
+map <int, string> stringMonths;
+void setStringMonths() {
+    stringMonths[1]  = "Jan";
+    stringMonths[2]  = "Feb";
+    stringMonths[3]  = "Mar";
+    stringMonths[4]  = "Apr";
+    stringMonths[5]  = "May";
+    stringMonths[6]  = "Jun";
+    stringMonths[7]  = "Jul";
+    stringMonths[8]  = "Aug";
+    stringMonths[9]  = "Sep";
+    stringMonths[10] = "Oct";
+    stringMonths[11] = "Nov";
+    stringMonths[12] = "Dec";
+}
+
+map <string, string> numMonths;
+void setNumMonths() {
+    numMonths["Jan"] = "01";
+    numMonths["Feb"] = "02";
+    numMonths["Mar"] = "03";
+    numMonths["Apr"] = "04";
+    numMonths["May"] = "05";
+    numMonths["Jun"] = "06";
+    numMonths["Jul"] = "07";
+    numMonths["Aug"] = "08";
+    numMonths["Sep"] = "09";
+    numMonths["Oct"] = "10";
+    numMonths["Nov"] = "11";
+    numMonths["Dec"] = "12";
+}
+
+
+
 
 //Help section
 const string helpSection = "Help Section";
@@ -62,6 +100,8 @@ bool isValidPeriod(string period);
 
 void runSet(string cl, string period);
 
+int numDate(string date);
+string stringDate(int date);
 void runCurrAss();
 void runAllAss();
 
@@ -163,7 +203,7 @@ void runUpdate() {
     
     ofstream ass(assPath.c_str());
     if (ass.is_open()) {
-        for (int i = 0; i < allAss.size(); i++) {
+        for (int i = (int) allAss.size() - 1; i > 0; i--) {
             ass << allAss[i].getID() << endl << allAss[i].getName() << endl << allAss[i].assType() << endl  << allAss[i].getDueDate() << endl << allAss[i].getLink() << endl << allAss[i].getSubmitID() << allAss[i].getModule() << endl;
         }
     }
@@ -378,7 +418,64 @@ void runSet(string cl, string period) {
 
 void runCurrAss() {
     //Temporary result
-    cout << "Listing current assignments" << endl;
+    //cout << "Listing current assignments" << endl;
+    
+    ifstream ass(assPath);
+    if (ass.is_open()) {
+        
+        //Converting system time to today's date
+        time_t now = time(0);
+        string current = ctime(&now);
+        string mon = current.substr(4,3);
+        string day = current.substr(8, 2);
+        string year = current.substr(20);
+        string today = day + " " + mon + " " + year;
+        //cout << today << endl;
+        
+        cout << left << setw(4) << "ID" << setw(15) << "Name" << setw(20) << "Type" << setw(15) << "Due Date" << setw(20) << "Module" << endl;
+        
+        while (!ass.eof()) {
+            string id;
+            getline(ass, id);
+            string name;
+            getline(ass, name);
+            string assType;
+            getline(ass, assType);
+            string dueDate;
+            getline(ass, dueDate);
+            string link;
+            getline(ass, link);
+            string submitID;
+            getline(ass, submitID);
+            string module;
+            getline(ass, module);
+            
+            //Print ass if due date has not passed
+            if (numDate(today) < numDate(dueDate)) {
+                cout << left << id << setw(15) << name << setw(20) << assType << setw(15) << dueDate << setw(20)<< module << endl;
+            }
+
+        }
+        cout << numDate(today) << endl;
+    } else cout << "No Assignments to show" << endl;
+    
+}
+
+//Gives date in the form yyyymmdd
+int numDate(string date) {
+    if (date.empty()) return 0;
+    if (date == "-1") return -1;
+    string day = date.substr(0, 2);
+    string mon = date.substr(3, 3);
+    string year = date.substr(7, 4);
+    //cout << year << mon << day << endl;
+    string newDate = year + numMonths[mon] + day;
+    return stoi(newDate);
+}
+
+//Gives date in the form "dd mon yyyy"
+string stringDate(int date) {
+    return "";
 }
 
 void runAllAss() {
