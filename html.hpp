@@ -422,7 +422,7 @@ public:
     vector<Assignment> getAssignments() {
         // Returns an array of Assignments
         
-        return vector<Assignment>();
+        return assignments;
     }
     
     int assSize() {
