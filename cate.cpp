@@ -1,5 +1,6 @@
 #include <iostream>
 #include <fstream>
+#include <sstream>
 #include <string>
 #include <sys/stat.h>
 #include <stdio.h>
@@ -588,13 +589,18 @@ int numDate(string date) {
     string year = date.substr(7, 4);
     //cout << numMonths[mon] << endl;
     string newDate = year + numMonths[mon] + day;
-    return stoi(newDate);
+    stringstream convert(newDate);
+    int result;
+    convert >> result;
+    return result;
 }
 
 
 //Gives date in the form "dd mon yyyy"
 string stringDate(int date) {
-    string strDate = to_string(date);
+    stringstream convert;
+    convert << date;
+    string strDate = convert.str();
     return strDate.substr(6, 2) + " " + stringMonths[strDate.substr(4, 2)] + " " + strDate.substr(0, 4);
 }
 
