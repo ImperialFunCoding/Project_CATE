@@ -25,7 +25,26 @@ using namespace std;
 */
 
 //global map for months
+
+
 map <string, string> stringMonths;
+/*
+      { {"01" ,"Jan"},
+        {"02", "Feb"},
+        {"03", "Mar"},
+        {"04", "Apr"},
+        {"05", "May"},
+        {"06", "Jun"},
+        {"07", "Jul"},
+        {"08", "Aug"},
+        {"09", "Sep"},
+        {"10", "Oct"},
+        {"11", "Nov"},
+        {"12", "Dec"} };
+ 
+ */
+
+
 void setStringMonths() {
     stringMonths["01"]  = "Jan";
     stringMonths["02"]  = "Feb";
@@ -41,7 +60,25 @@ void setStringMonths() {
     stringMonths["12"] = "Dec";
 }
 
+
 map <string, string> numMonths;
+
+/*
+      { {"Jan", "01"},
+        {"Feb", "02"},
+        {"Mar", "03"},
+        {"Apr", "04"},
+        {"May", "05"},
+        {"Jun", "06"},
+        {"Jul", "07"},
+        {"Aug", "08"},
+        {"Sep", "09"},
+        {"Oct", "10"},
+        {"Nov", "11"},
+        {"Dec", "12"} };
+*/
+
+
 void setNumMonths() {
     numMonths["Jan"] = "01";
     numMonths["Feb"] = "02";
@@ -56,6 +93,7 @@ void setNumMonths() {
     numMonths["Nov"] = "11";
     numMonths["Dec"] = "12";
 }
+
 
 
 
@@ -201,7 +239,7 @@ void runUpdate() {
     allAss.push_back(Assignment("s125", "Maths", "green", "11 Dec 2014", "www.google.com", "123", "m"));
     allAss.push_back(Assignment("s345", "Physics", "white", "25 Nov 2014", "www.facebook.com", "123", "m"));
     */
-     
+    
     setNumMonths();
     
     sort(allAss.begin(), allAss.end(), isBefore);
@@ -443,7 +481,6 @@ void runCurrAss() {
     if (ass.is_open()) {
         
         setNumMonths();
-        //setStringMonths();
         
         //Converting system time to today's date
         time_t now = time(0);
@@ -495,11 +532,13 @@ int numDate(string date) {
     return stoi(newDate);
 }
 
+
 //Gives date in the form "dd mon yyyy"
 string stringDate(int date) {
     string strDate = to_string(date);
     return strDate.substr(6, 2) + " " + stringMonths[strDate.substr(4, 2)] + " " + strDate.substr(0, 4);
 }
+
 
 void runAllAss() {
     //cout << "Listing all assigments:\n" << endl;
