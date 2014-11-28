@@ -8,14 +8,14 @@ using namespace std;
 
 int main(){
     Html html("c1","1","cmy14");
-    for(int i=0; i<html.assignments; i++){
-        cout<<html.assignments<<" ";
-        cout<<html.assignments<<" ";
-        cout<<html.assignments<<" ";
-        cout<<html.assignments<<" ";
-        cout<<html.assignments<<" ";
-        cout<<html.assignments<<" ";
-        cout<<html.assignments<<endl;
+    for(int i=0; i<html.assignments.size(); i++){
+        cout<<html.assignments[i].getID()<<" ";
+        cout<<html.assignments[i].getName()<<" ";
+        cout<<html.assignments[i].getDueDate()<<" ";
+        //cout<<html.assignments[i].getLink()<<" ";
+        cout<<html.assignments[i].assType()<<" ";
+        cout<<html.assignments[i].getSubmitID()<<" ";
+        cout<<html.assignments[i].getModule()<<endl;
     }
     //fetch moduleIds and moduleNames
 /*    int bgcolorPos,colspanPos,rowspanPos;

@@ -55,7 +55,7 @@ public:
                 break;
             case 'h':
                 assert(id!="");
-                url += "handin.cgi"
+                url += "handins.cgi"
                     "?key=2014:"+period+":"+id+":"
                     ""+cl+":new:"+user;
                 break;
@@ -127,7 +127,9 @@ public:
     vector<string> getShowfileIds(vector<Tag> tags){
         vector<string> idStack;
         for(int i=0; i< tags.size();i++){
-            idStack.push_back(getShowfileId(tags[i]));
+            if(getShowfileId(tags[i])!=""){
+                idStack.push_back(getShowfileId(tags[i]));
+            }
         }
         return idStack; 
     }
@@ -190,8 +192,8 @@ public:
     vector<string> getModuleNames(vector<string> contents){
         //Pre: contents is from timetable.cgi
         vector<string> moduleStack;
-        for (int i = 0; i < contents.size(); i++){
-            if(contents[i].length()>=2){
+        for (int i=0; i < contents.size(); i++){
+            if(contents[i].length()>=3){
                 if(contents[i][0]=='-'){
                     moduleStack.push_back(contents[i].substr(2));
                 }
@@ -208,7 +210,7 @@ public:
                     return contents[i+3].substr(6);
                 }
             }else{
-                if(tags[i].tag=="<td align=\"right\">"){
+                if(tags[i].name()=="td"){
                     if(contents[i+1]=="Due"){
                         seenDue=true;
                     }
@@ -220,12 +222,14 @@ public:
 
     string getHandinsId(Tag tag){
         string URL = this->findLink(tag, "handins.cgi");
-        int colon,colon2;
-        //start from 6 to skip https://
-        colon2 = URL.find_first_of(":",6);
-        colon  = URL.find_first_of(":",colon2+1);
-        colon2 = URL.find_first_of(":",colon+1);
-        return URL.substr(colon+1,colon2-colon-1);
+        if(URL!=""){
+            int colon,colon2;
+            colon2 = URL.find_first_of(":",6);
+            colon  = URL.find_first_of(":",colon2+1);
+            colon2 = URL.find_first_of(":",colon+1);
+            return URL.substr(colon+1,colon2-colon-1);
+        }
+        return "-1";
     }
     vector<string> getAssSid(vector<Tag> tags,vector<string> contents){
         int bgcolorPos, colspanPos;
@@ -242,8 +246,11 @@ public:
                          || tags[i].attrValue(bgcolorPos)=="white")
                          && tags[i+3].name()=="a"
                          && contents[i+3]!=""){
-                            if(tags[i+5].name()=="a"){
-                                string id = getHandinsId(findLink(tags[i+5],"handins.cgi"));
+                            if(tags[i+5].name()=="a"
+                        &&tags[i+6].attrValue(tags[i+6].attrPos("src") )=="icons/h.gif"
+                                ){
+
+                                string id = getHandinsId(tags[i+5]);
                                 ids.push_back(id);
                             }else{
                                 ids.push_back("-1");
@@ -264,16 +271,16 @@ public:
                 colspanPos=tags[i].attrPos("colspan");
                 if(colspanPos>=0){
                     if(bgcolorPos>=0){
-                        if((tags[i].attrValue(bgcolorPos)=="#cdcdcd"//green
-                         || tags[i].attrValue(bgcolorPos)=="#ccffcc"//grey
+                        if((tags[i].attrValue(bgcolorPos)=="#cdcdcd"//grey
+                         || tags[i].attrValue(bgcolorPos)=="#ccffcc"//green
                          || tags[i].attrValue(bgcolorPos)=="#f0ccf0"//pink
                          || tags[i].attrValue(bgcolorPos)=="white")
                          && tags[i+3].name()=="a"
                          && contents[i+3]!=""){
                             if(tags[i].attrValue(bgcolorPos)=="#cdcdcd"){
-                                typeStack.push_back("green");
-                            }else if(tags[i].attrValue(bgcolorPos)=="#ccffcc"){
                                 typeStack.push_back("grey");
+                            }else if(tags[i].attrValue(bgcolorPos)=="#ccffcc"){
+                                typeStack.push_back("green");
                             }else if(tags[i].attrValue(bgcolorPos)=="#f0ccf0"){
                                 typeStack.push_back("pink");
                             }else if(tags[i].attrValue(bgcolorPos)=="white"){
@@ -309,8 +316,10 @@ public:
                 }
             }
             if(rowspanPos>=0){
-                if(contents[i+3].length()>3){
-                    currentMod=contents[i+3].substr(2);
+                if(contents[i+3].length()>2){
+                    if(contents[i+3][0]=='-'){
+                        currentMod=contents[i+3].substr(2);
+                    }
                 }
             }
         }
@@ -365,7 +374,7 @@ public:
         vector<string> modIds=this->getModuleIds(curl.tags);
         vector<Module> mods;
         modNum= modNames.size();
-        for(int i=0; i<modNames.size(); i++){
+        for(int i=0; i<modNum; i++){
             if(modIds.size()>i && atoi(modIds[i].c_str())>0){
                 Curl curl_notes(CATE_URL+"notes.cgi?key=2014:"+modIds[i]+":"+period+":"+cl+":new:"+user,header);
                 vector<string> noteIds= this->getShowfileIds(curl_notes.tags);
@@ -394,13 +403,16 @@ public:
         vector<string> assSids      = getAssSid(curl.tags,curl.contents);
         vector<string> assCurMods   = getAssCurMods(curl.tags,curl.contents);
         for(int i=0; i<assIds.size(); i++){
+            assIds[i]="s"+assIds[i];
             if(assSids[i]!="-1"){
-                Curl curl_ass(this->getURL('h'),header,assIds[i]);
+                Curl curl_ass(this->getURL('h',assSids[i]),header);
                 string assDueDate  = getAssDueDate(curl_ass.tags,curl_ass.contents);
-                Assignment ass(assIds[i],assNames[i],assTypes[i],assDueDate,assLinks[i],assSids[i],assCurMods[i]);
+                Assignment ass(assIds[i],assNames[i],assTypes[i],
+                    assDueDate,assLinks[i],assSids[i],assCurMods[i]);
                 assignments.push_back(ass);
             }else{
-                Assignment ass(assIds[i],assNames[i],assTypes[i],"-1",assLinks[i],assSids[i],assCurMods[i]);
+                Assignment ass(assIds[i],assNames[i],assTypes[i],
+                    "-1",assLinks[i],assSids[i],assCurMods[i]);
                 assignments.push_back(ass);
             }
         }
