@@ -410,7 +410,7 @@ void runPull(string id) {
         
         string link;
         string name;
-        ifstream spec(modPath.c_str());
+        ifstream spec(assPath.c_str());
         if (spec.is_open()) {
             bool found = false;
             while (!spec.eof()) {
@@ -491,7 +491,7 @@ void runCurrAss() {
         string today = day + " " + mon + " " + year;
         //cout << today << endl;
         
-        cout << left << setw(6) << "ID" << setw(15) << "Name" << setw(20) << "Type" << setw(15) << "Due Date" << setw(20) << "Module" << endl;
+        cout << left << setw(6) << "ID" << setw(30) << "Name" << setw(10) << "Type" << setw(15) << "Due Date" << setw(20) << "Module" << endl;
         
         while (!ass.eof()) {
             string id;
@@ -511,7 +511,7 @@ void runCurrAss() {
             
             //Print ass if due date has not passed
             if (numDate(today) < numDate(dueDate)) {
-                cout << left << setw(6) << id << setw(15) << name << setw(20) << assType << setw(15) << dueDate << setw(20)<< module << endl;
+                cout << left << setw(6) << id << setw(30) << name << setw(10) << assType << setw(15) << dueDate << setw(20)<< module << endl;
             }
 
         }
@@ -542,7 +542,7 @@ string stringDate(int date) {
 
 void runAllAss() {
     //cout << "Listing all assigments:\n" << endl;
-    cout << left << setw(6) << "ID" << setw(15) << "Name" << setw(20) << "Type" << setw(15) << "Due Date" << setw(20) << "Module" << endl;
+    cout << left << setw(6) << "ID" << setw(30) << "Name" << setw(10) << "Type" << setw(15) << "Due Date" << setw(20) << "Module" << endl;
     ifstream fin(assPath.c_str());
     if (fin.is_open()) {
         while (!fin.eof()) {
@@ -564,7 +564,7 @@ void runAllAss() {
             string module;
             getline(fin, module);
             
-            cout << left << setw(6) << id << setw(15) << name << setw(20) << assType << setw(15) << dueDate << setw(20)<< module << endl;
+            cout << left << setw(6) << id << setw(30) << name << setw(10) << assType << setw(15) << dueDate << setw(20)<< module << endl;
         }
         
     } else cout << "No Assignments to show" << endl;

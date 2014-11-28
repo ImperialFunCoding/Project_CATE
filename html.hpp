@@ -55,7 +55,7 @@ public:
                 break;
             case 'h':
                 assert(id!="");
-                url += "handin.cgi"
+                url += "handins.cgi"
                     "?key=2014:"+period+":"+id+":"
                     ""+cl+":new:"+user;
                 break;
@@ -79,31 +79,57 @@ public:
         }
         return url;
     }
+    /*
+    string getId(string link, int pos=1){
+        int colon,colon2;
+        if(pos==0){
+            //start from 6 to skip https://
+            colon2 = link.find_first_of(":",6);
+            colon  = link.find_first_of(":",colon2+1);
+            colon2 = link.find_first_of(":",colon+1);
+            return link.substr(colon+1,colon2-colon-1);
+        }else{
+            
+        }
+    }
+    */
     //cate related functions
     //asses
 
     //modules
+    string findLink(Tag tag,string file){
+        string url="";
+        for (int i = 0; i < tag.attrSize(); i++){
+            if(fileName(tag.attrValue(i))==file){
+                url=CATE_URL+tag.attrValue(i);
+            }
+        }
+        return url;
+    }
     vector<string> findLinks(vector<Tag> tags,string file){
         vector<string> URLStack;
         for (int i = 0; i < tags.size(); i++){
-            for(int j=0; j<tags[i].attrSize(); j++){
-                if(fileName(tags[i].attrValue(j))==file){
-                    URLStack.push_back(CATE_URL+tags[i].attrValue(j));
-                }
+            if(findLink(tags[i], file)!=""){
+                URLStack.push_back(findLink(tags[i], file));
             }
         }
         return URLStack;
     }
-    vector<string> getShowfileIds(vector<Tag> tags){
-        vector<string> URLs = this->findLinks(tags, "showfile.cgi");
-        vector<string> idStack;
+    string getShowfileId(Tag tag){
+        string URL = this->findLink(tag, "showfile.cgi");
         int colon,colon2;
-        for(int i=0; i< URLs.size();i++){
-            //start from 6 to skip https://
-            colon2 = URLs[i].find_first_of(":",6);
-            colon  = URLs[i].find_first_of(":",colon2+1);
-            colon2 = URLs[i].find_first_of(":",colon+1);
-            idStack.push_back(URLs[i].substr(colon+1,colon2-colon-1));
+        //start from 6 to skip https://
+        colon2 = URL.find_first_of(":",6);
+        colon  = URL.find_first_of(":",colon2+1);
+        colon2 = URL.find_first_of(":",colon+1);
+        return URL.substr(colon+1,colon2-colon-1);
+    }
+    vector<string> getShowfileIds(vector<Tag> tags){
+        vector<string> idStack;
+        for(int i=0; i< tags.size();i++){
+            if(getShowfileId(tags[i])!=""){
+                idStack.push_back(getShowfileId(tags[i]));
+            }
         }
         return idStack; 
     }
@@ -160,29 +186,144 @@ public:
                 }
             }
         }
-        /*vector<string> URLs = this->findLinks(tags,"notes.cgi");
-        vector<string> idStack;
-        int colon,colon2;
-        for(int i=0; i < URLs.size(); i++){
-            colon  = URLs[i].find_first_of(":",6);
-            colon2 = URLs[i].find_first_of(":",colon+1);
-            idStack.push_back(URLs[i].substr(colon+1,colon2-colon-1));
-        }*/
-
         return idStack;
     }
 
     vector<string> getModuleNames(vector<string> contents){
         //Pre: contents is from timetable.cgi
         vector<string> moduleStack;
-        for (int i = 0; i < contents.size(); i++){
-            if(contents[i].length()>=2){
+        for (int i=0; i < contents.size(); i++){
+            if(contents[i].length()>=3){
                 if(contents[i][0]=='-'){
                     moduleStack.push_back(contents[i].substr(2));
                 }
             }
         }
         return moduleStack;
+    }
+    
+    string getAssDueDate(vector<Tag> tags, vector<string> contents){
+        bool seenDue=false;
+        for(int i=0;i<tags.size();i++){
+            if(seenDue){
+                if(tags[i].name()=="td"){
+                    return contents[i+3].substr(6);
+                }
+            }else{
+                if(tags[i].name()=="td"){
+                    if(contents[i+1]=="Due"){
+                        seenDue=true;
+                    }
+                }
+            }
+        }
+        return "-1";
+    }
+
+    string getHandinsId(Tag tag){
+        string URL = this->findLink(tag, "handins.cgi");
+        if(URL!=""){
+            int colon,colon2;
+            colon2 = URL.find_first_of(":",6);
+            colon  = URL.find_first_of(":",colon2+1);
+            colon2 = URL.find_first_of(":",colon+1);
+            return URL.substr(colon+1,colon2-colon-1);
+        }
+        return "-1";
+    }
+    vector<string> getAssSid(vector<Tag> tags,vector<string> contents){
+        int bgcolorPos, colspanPos;
+        vector<string> ids;
+        for(int i=0; i<tags.size(); i++){
+            if(tags[i].name()=="td" && tags[i].attrSize()>1){
+                bgcolorPos=tags[i].attrPos("bgcolor");
+                colspanPos=tags[i].attrPos("colspan");
+                if(colspanPos>=0){
+                    if(bgcolorPos>=0){
+                        if((tags[i].attrValue(bgcolorPos)=="#cdcdcd"//green
+                         || tags[i].attrValue(bgcolorPos)=="#ccffcc"//grey
+                         || tags[i].attrValue(bgcolorPos)=="#f0ccf0"//pink
+                         || tags[i].attrValue(bgcolorPos)=="white")
+                         && tags[i+3].name()=="a"
+                         && contents[i+3]!=""){
+                            if(tags[i+5].name()=="a"
+                        &&tags[i+6].attrValue(tags[i+6].attrPos("src") )=="icons/h.gif"
+                                ){
+
+                                string id = getHandinsId(tags[i+5]);
+                                ids.push_back(id);
+                            }else{
+                                ids.push_back("-1");
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        return ids;
+    }
+    vector<string> getAssTypes(vector<Tag> tags,vector<string> contents){
+        int bgcolorPos, colspanPos;
+        vector<string> typeStack;
+        for(int i=0; i<tags.size(); i++){
+            if(tags[i].name()=="td" && tags[i].attrSize()>1){
+                bgcolorPos=tags[i].attrPos("bgcolor");
+                colspanPos=tags[i].attrPos("colspan");
+                if(colspanPos>=0){
+                    if(bgcolorPos>=0){
+                        if((tags[i].attrValue(bgcolorPos)=="#cdcdcd"//grey
+                         || tags[i].attrValue(bgcolorPos)=="#ccffcc"//green
+                         || tags[i].attrValue(bgcolorPos)=="#f0ccf0"//pink
+                         || tags[i].attrValue(bgcolorPos)=="white")
+                         && tags[i+3].name()=="a"
+                         && contents[i+3]!=""){
+                            if(tags[i].attrValue(bgcolorPos)=="#cdcdcd"){
+                                typeStack.push_back("grey");
+                            }else if(tags[i].attrValue(bgcolorPos)=="#ccffcc"){
+                                typeStack.push_back("green");
+                            }else if(tags[i].attrValue(bgcolorPos)=="#f0ccf0"){
+                                typeStack.push_back("pink");
+                            }else if(tags[i].attrValue(bgcolorPos)=="white"){
+                                typeStack.push_back("white");
+                            }else assert(false && "IMPOSSIBLE!");
+                        }
+                    }
+                }
+            }
+        }
+        return typeStack;
+    }
+    vector<string> getAssCurMods(vector<Tag> tags, vector<string> contents){
+        vector<string> curMods;
+        string currentMod;
+        int bgcolorPos,colspanPos,rowspanPos;
+        for(int i=0; i<tags.size(); i++){
+            if(tags[i].name()=="td" && tags[i].attrSize()>1){
+                bgcolorPos=tags[i].attrPos("bgcolor");
+                colspanPos=tags[i].attrPos("colspan");
+                rowspanPos=tags[i].attrPos("rowspan");
+                if(colspanPos>=0){
+                    if(bgcolorPos>=0){
+                        if((tags[i].attrValue(bgcolorPos)=="#cdcdcd"//green
+                         || tags[i].attrValue(bgcolorPos)=="#ccffcc"//grey
+                         || tags[i].attrValue(bgcolorPos)=="#f0ccf0"//pink
+                         || tags[i].attrValue(bgcolorPos)=="white")
+                         && tags[i+3].name()=="a"
+                         && contents[i+3]!=""){
+                            curMods.push_back(currentMod);
+                        }
+                    }
+                }
+            }
+            if(rowspanPos>=0){
+                if(contents[i+3].length()>2){
+                    if(contents[i+3][0]=='-'){
+                        currentMod=contents[i+3].substr(2);
+                    }
+                }
+            }
+        }
+        return curMods;
     }
 
 //public:
@@ -201,12 +342,13 @@ public:
 
     int modNum;
     vector<Module> modules;
+    vector<Assignment> assignments;
    
     Html(string c, string p, string u) {
         //Class constructor here
         
         // The constructor for the Assignment class is:
-        // Assignment(string n_id, string n_name, bool n_counted, string n_dueDate, string n_link);
+        // Assignment(string n_id, string n_name, string n_type, string n_dueDate, string n_link);
         // Note: the n_counted variable denotes if the assigment is green on cate
         // Note: string dueDate in the format: "23 May 2014"
         
@@ -232,7 +374,7 @@ public:
         vector<string> modIds=this->getModuleIds(curl.tags);
         vector<Module> mods;
         modNum= modNames.size();
-        for(int i=0; i<modNames.size(); i++){
+        for(int i=0; i<modNum; i++){
             if(modIds.size()>i && atoi(modIds[i].c_str())>0){
                 Curl curl_notes(CATE_URL+"notes.cgi?key=2014:"+modIds[i]+":"+period+":"+cl+":new:"+user,header);
                 vector<string> noteIds= this->getShowfileIds(curl_notes.tags);
@@ -252,6 +394,29 @@ public:
             }
         }
         modules = mods;
+        
+        //assignments
+        vector<string> assIds       = getShowfileIds(curl.tags);
+        vector<string> assNames     = getShowfileNames(curl.tags,curl.contents);
+        vector<string> assTypes     = getAssTypes(curl.tags,curl.contents);
+        vector<string> assLinks     = getShowfileURLs(curl.tags);
+        vector<string> assSids      = getAssSid(curl.tags,curl.contents);
+        vector<string> assCurMods   = getAssCurMods(curl.tags,curl.contents);
+        for(int i=0; i<assIds.size(); i++){
+            assIds[i]="s"+assIds[i];
+            if(assSids[i]!="-1"){
+                Curl curl_ass(this->getURL('h',assSids[i]),header);
+                string assDueDate  = getAssDueDate(curl_ass.tags,curl_ass.contents);
+                Assignment ass(assIds[i],assNames[i],assTypes[i],
+                    assDueDate,assLinks[i],assSids[i],assCurMods[i]);
+                assignments.push_back(ass);
+            }else{
+                Assignment ass(assIds[i],assNames[i],assTypes[i],
+                    "-1",assLinks[i],assSids[i],assCurMods[i]);
+                assignments.push_back(ass);
+            }
+        }
+        
     }
     
     vector<Assignment> getAssignments() {
