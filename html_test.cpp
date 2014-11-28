@@ -7,7 +7,7 @@
 using namespace std;
 
 int main(){
-    cout<<submit("cmy14","c1","1","110")<<endl;
+    submit("cmy14","c1","1","110");
     //fetch moduleIds and moduleNames
 /*    int bgcolorPos,colspanPos,rowspanPos;
     string currentMod;

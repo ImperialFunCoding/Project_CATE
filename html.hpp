@@ -64,7 +64,7 @@ static string* declaration(string user, string cl, string period, string sId){
     return array;
 }
 
-void string submit(string user, string cl, string period, string sId){
+static void submit(string user, string cl, string period, string sId){
     //Pre: .git folder exist
     string* array = declaration(user,cl,period,sId);
     string header = array[0];
