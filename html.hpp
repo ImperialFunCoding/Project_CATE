@@ -64,7 +64,7 @@ static string* declaration(string user, string cl, string period, string sId){
     return array;
 }
 
-static string submit(string user, string cl, string period, string sId){
+static void submit(string user, string cl, string period, string sId){
     //Pre: .git folder exist
     string* array = declaration(user,cl,period,sId);
     string header = array[0];
@@ -78,9 +78,11 @@ static string submit(string user, string cl, string period, string sId){
         system(command.c_str());
         Curl submit(url,header,forms2);
         system("rm cate_token.txt");
-        return "-1";
+        return;
     } else{
-        return hardcover;
+        string command = "curl -s -u "+user+" "+hardcover+">hardcover.ps";
+        system(command.c_str());
+        return;
     }
 }
 

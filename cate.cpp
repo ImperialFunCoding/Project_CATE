@@ -677,8 +677,8 @@ void runSubmit(string id) {
         
         cout << "Submitting a blank declaration for the assignment." << endl;
         cout << "If you have any declarations to add, add them on the cate website." << endl;
-        string link = submit(user, cl, pd, submitID);
-        //cout << link << endl;
+        submit(user, cl, pd, submitID);
+        cout << "Complete." << endl;
         
         
     } else cout << "Cannot submit assignment" << endl;
