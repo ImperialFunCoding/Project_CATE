@@ -29,9 +29,7 @@ const string CATE_URL= "https://cate.doc.ic.ac.uk/";
 
 class Html {
     
-public:
-//private:
-    //string manipulation functions
+private:
     string getURL(char p,string id=""){
         string url;
         url = CATE_URL;
@@ -79,24 +77,7 @@ public:
         }
         return url;
     }
-    /*
-    string getId(string link, int pos=1){
-        int colon,colon2;
-        if(pos==0){
-            //start from 6 to skip https://
-            colon2 = link.find_first_of(":",6);
-            colon  = link.find_first_of(":",colon2+1);
-            colon2 = link.find_first_of(":",colon+1);
-            return link.substr(colon+1,colon2-colon-1);
-        }else{
-            
-        }
-    }
-    */
-    //cate related functions
-    //asses
 
-    //modules
     string findLink(Tag tag,string file){
         string url="";
         for (int i = 0; i < tag.attrSize(); i++){
@@ -326,55 +307,27 @@ public:
         return curMods;
     }
 
-//public:
-    
-    //Implement the following member functions
-
-    /* Since the IDs for specs and notes are different,
-     * set the ID for specs with an 's' at the back,
-     * eg. "345s"
-     * and with an 'n' at the back of notes,
-     * eg. "123n"
-     */
-
+public:
     string cl, period, user;
     string header;
 
-    int modNum;
     vector<Module> modules;
     vector<Assignment> assignments;
    
     Html(string c, string p, string u) {
-        //Class constructor here
-        
-        // The constructor for the Assignment class is:
-        // Assignment(string n_id, string n_name, string n_type, string n_dueDate, string n_link);
-        // Note: the n_counted variable denotes if the assigment is green on cate
-        // Note: string dueDate in the format: "23 May 2014"
-        
-        
-        // The constructor for the Module class is:
-        // Module(string n_modNumber, string n_name, Notes n_notes[], int n_numNotes);
-        // Note: the arguments for the constructor include an array of notes
-        // The constructor for the Notes module is:
-        // Notes(n_id, n_name, n_link);
         cl      = c;
         period  = p;
         user    = u;
+
         //this will ask for password
         header  = getHeader(CATE_URL,user);
-
-        //assignment
-        
-
 
         //module
         Curl curl(this->getURL('t'),header);
         vector<string> modNames=this->getModuleNames(curl.contents);
         vector<string> modIds=this->getModuleIds(curl.tags);
         vector<Module> mods;
-        modNum= modNames.size();
-        for(int i=0; i<modNum; i++){
+        for(int i=0; i<modNames.size(); i++){
             if(modIds.size()>i && atoi(modIds[i].c_str())>0){
                 Curl curl_notes(CATE_URL+"notes.cgi?key=2014:"+modIds[i]+":"+period+":"+cl+":new:"+user,header);
                 vector<string> noteIds= this->getShowfileIds(curl_notes.tags);
@@ -421,37 +374,11 @@ public:
     
     vector<Assignment> getAssignments() {
         // Returns an array of Assignments
-        
         return assignments;
     }
-    
-    int assSize() {
-        //Return the size of the assigments array
-        
-        return 0;
-    }
-    
     
     vector<Module> getModules() {
         // Returns an array of Modules
         return modules;
     }
-    
-    int modSize() {
-        //Return the size of the modules array
-        return modNum;
-    }
-    
-    
-    bool isValidClass(string cl) {
-        //Returns true if the class input eg. "c1", "c2" exists on cate
-        return false;
-    }
-    
-    
-    static bool isValidPeriod(string period) {
-        //Returns true if the period input eg. "autumn", "spring" exists on cate
-        return false;
-    }
-    
 };

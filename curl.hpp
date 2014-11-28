@@ -56,6 +56,7 @@ public:
         url = u;
         //start fetch data
         FILE *f;
+        cout<<"Fetching "<<u<<endl;
         string command = "curl -s -H \""+header+"\" ";
         char buff[512];
         if(form!=""){
@@ -65,7 +66,6 @@ public:
 
         assert (f = popen(command.c_str(), "r"));
 
-        cout<<"Fetching "<<u<<endl;
 
         while(fgets(buff, sizeof(buff), f)!=NULL){
             html += buff;
