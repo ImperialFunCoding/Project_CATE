@@ -560,6 +560,7 @@ void runCurrAss() {
         }
         //cout << stringDate(20140511) << endl;
         ass.close();
+        cout << endl;
     } else cout << "No Assignments to show" << endl;
     
 }
@@ -613,7 +614,6 @@ void runAllAss() {
             cout << left << setw(6) << id << setw(30) << name << setw(10) << assType << setw(15) << dueDate << setw(20)<< module << endl;
         }
         fin.close();
-        cout << endl;
     } else cout << "No Assignments to show" << endl;
 }
 
