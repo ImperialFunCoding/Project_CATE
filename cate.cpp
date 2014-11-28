@@ -394,6 +394,7 @@ void runMod(string modNum) {
             
         } else cout << "No such module" << endl;
     }
+    cout << endl;
     mods.close();
 }
 
