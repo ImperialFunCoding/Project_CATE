@@ -6,6 +6,7 @@
 #include <stdlib.h>
 #include <iomanip>
 #include <vector>
+#include <algorithm>
 #include <ctime>
 #include <map>
 #include "html.hpp"
@@ -662,7 +663,7 @@ string* getClassPeriod() {
 
 void runSubmit(string id) {
     
-    ifstream ass(assPath);
+    ifstream ass(assPath.c_str());
     if (ass.is_open()) {
         bool found = false;
         while (!ass.eof()) {
