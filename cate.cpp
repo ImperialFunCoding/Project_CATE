@@ -25,12 +25,12 @@ using namespace std;
 //Help section
 const string helpSection = "Help Section";
 
-// Path for attributes file
+//Path for attributes file
 const string attPath = string(getenv("HOME"))+"/.cateFiles/attributes.txt";
 const string assPath = string(getenv("HOME"))+"/.cateFiles/ass.txt";
 const string modPath = string(getenv("HOME"))+"/.cateFiles/mods.txt";
 
-// Valid cate commands
+//Valid cate commands
 const string UPDATE = "update";
 const string SET    = "set";
 const string PULL   = "pull";
@@ -164,7 +164,7 @@ void runUpdate() {
     ofstream ass(assPath.c_str());
     if (ass.is_open()) {
         for (int i = 0; i < allAss.size(); i++) {
-            ass << allAss[i].getID() << endl << allAss[i].getName() << endl << allAss[i].assType() << endl << allAss[i].getDueDate() << endl << allAss[i].getLink() << endl;
+            ass << allAss[i].getID() << endl << allAss[i].getName() << endl << allAss[i].assType() << endl  << allAss[i].getDueDate() << endl << allAss[i].getLink() << endl << allAss[i].getSubmitID() << allAss[i].getModule() << endl;
         }
     }
     ass.close();
@@ -383,25 +383,29 @@ void runCurrAss() {
 
 void runAllAss() {
     //cout << "Listing all assigments:\n" << endl;
-    cout << left << setw(4) << "ID" << " " << setw(15) << "Name" << " " << setw(20) << "Due Date" << " " << "Type" << endl;
+    cout << left << setw(4) << "ID" << setw(15) << "Name" << setw(20) << "Type" << setw(15) << "Due Date" << setw(20) << "Module" << endl;
     ifstream fin(assPath.c_str());
     if (fin.is_open()) {
-        for (int i = 0; i < 2; i++) {
+        while (!fin.eof()) {
             string id;
             getline(fin, id);
             string name;
             getline(fin, name);
             // isCounted is a bool value, stored as 0 or 1 in file
-            string isCounted;
-            getline(fin, isCounted);
-            if (isCounted == "1") isCounted = "Assesed";
-            else if (isCounted == "0") isCounted = "Non-Assesed";
+            string assType;
+            getline(fin, assType);
+            if (assType == "1") assType = "Assesed";
+            else if (assType == "0") assType = "Non-Assesed";
             string dueDate;
             getline(fin, dueDate);
             string link;
             getline(fin, link);
+            string submitID;
+            getline(fin, submitID);
+            string module;
+            getline(fin, module);
             
-            cout << left << id << " " << setw(15) << name << " " << setw(20) << dueDate << " " << isCounted  << endl;
+            cout << left << id << setw(15) << name << setw(20) << assType << setw(15) << dueDate << setw(20)<< module << endl;
         }
         
     } else cout << "No Assignments to show" << endl;
