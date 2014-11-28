@@ -8,12 +8,16 @@ using namespace std;
 
 int main(){
     Html html("c1","1","cmy14");
-    string period="1";
-    string user = "cmy14";
-    string url ="https://cate.doc.ic.ac.uk/timetable.cgi?period=1&class=c1&keyt=2014%3Anone%3Anone%3Acmy14";
-    string header=getHeader(CATE_URL,user);
+    for(int i=0; i<html.assignments; i++){
+        cout<<html.assignments<<" ";
+        cout<<html.assignments<<" ";
+        cout<<html.assignments<<" ";
+        cout<<html.assignments<<" ";
+        cout<<html.assignments<<" ";
+        cout<<html.assignments<<" ";
+        cout<<html.assignments<<endl;
+    }
     //fetch moduleIds and moduleNames
-    Curl curl(url,header);
 /*    int bgcolorPos,colspanPos,rowspanPos;
     string currentMod;
     //https://cate.doc.ic.ac.uk/handins.cgi?key=2014:1:110:c1:new:cmy14

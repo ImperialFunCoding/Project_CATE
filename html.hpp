@@ -353,7 +353,7 @@ public:
         period  = p;
         user    = u;
         //this will ask for password
-        //header  = getHeader(CATE_URL,user);
+        header  = getHeader(CATE_URL,user);
 
         //assignment
         
