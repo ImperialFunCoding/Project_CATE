@@ -79,31 +79,55 @@ public:
         }
         return url;
     }
+    /*
+    string getId(string link, int pos=1){
+        int colon,colon2;
+        if(pos==0){
+            //start from 6 to skip https://
+            colon2 = link.find_first_of(":",6);
+            colon  = link.find_first_of(":",colon2+1);
+            colon2 = link.find_first_of(":",colon+1);
+            return link.substr(colon+1,colon2-colon-1);
+        }else{
+            
+        }
+    }
+    */
     //cate related functions
     //asses
 
     //modules
+    string findLink(Tag tag,string file){
+        string url="";
+        for (int i = 0; i < tag.attrSize(); i++){
+            if(fileName(tag.attrValue(i))==file){
+                url=CATE_URL+tag.attrValue(i);
+            }
+        }
+        return url;
+    }
     vector<string> findLinks(vector<Tag> tags,string file){
         vector<string> URLStack;
         for (int i = 0; i < tags.size(); i++){
-            for(int j=0; j<tags[i].attrSize(); j++){
-                if(fileName(tags[i].attrValue(j))==file){
-                    URLStack.push_back(CATE_URL+tags[i].attrValue(j));
-                }
+            if(findLink(tags[i], file)!=""){
+                URLStack.push_back(findLink(tags[i], file));
             }
         }
         return URLStack;
     }
-    vector<string> getShowfileIds(vector<Tag> tags){
-        vector<string> URLs = this->findLinks(tags, "showfile.cgi");
-        vector<string> idStack;
+    string getShowfileId(Tag tag){
+        string URL = this->findLink(tag, "showfile.cgi");
         int colon,colon2;
-        for(int i=0; i< URLs.size();i++){
-            //start from 6 to skip https://
-            colon2 = URLs[i].find_first_of(":",6);
-            colon  = URLs[i].find_first_of(":",colon2+1);
-            colon2 = URLs[i].find_first_of(":",colon+1);
-            idStack.push_back(URLs[i].substr(colon+1,colon2-colon-1));
+        //start from 6 to skip https://
+        colon2 = URL.find_first_of(":",6);
+        colon  = URL.find_first_of(":",colon2+1);
+        colon2 = URL.find_first_of(":",colon+1);
+        return URL.substr(colon+1,colon2-colon-1);
+    }
+    vector<string> getShowfileIds(vector<Tag> tags){
+        vector<string> idStack;
+        for(int i=0; i< tags.size();i++){
+            idStack.push_back(getShowfileId(tags[i]));
         }
         return idStack; 
     }
@@ -160,15 +184,6 @@ public:
                 }
             }
         }
-        /*vector<string> URLs = this->findLinks(tags,"notes.cgi");
-        vector<string> idStack;
-        int colon,colon2;
-        for(int i=0; i < URLs.size(); i++){
-            colon  = URLs[i].find_first_of(":",6);
-            colon2 = URLs[i].find_first_of(":",colon+1);
-            idStack.push_back(URLs[i].substr(colon+1,colon2-colon-1));
-        }*/
-
         return idStack;
     }
 
@@ -183,6 +198,123 @@ public:
             }
         }
         return moduleStack;
+    }
+    
+    string getAssDueDate(vector<Tag> tags, vector<string> contents){
+        bool seenDue=false;
+        for(int i=0;i<tags.size();i++){
+            if(seenDue){
+                if(tags[i].name()=="td"){
+                    return contents[i+3].substr(6);
+                }
+            }else{
+                if(tags[i].tag=="<td align=\"right\">"){
+                    if(contents[i+1]=="Due"){
+                        seenDue=true;
+                    }
+                }
+            }
+        }
+        return "-1";
+    }
+
+    string getHandinsId(Tag tag){
+        string URL = this->findLink(tag, "handins.cgi");
+        int colon,colon2;
+        //start from 6 to skip https://
+        colon2 = URL.find_first_of(":",6);
+        colon  = URL.find_first_of(":",colon2+1);
+        colon2 = URL.find_first_of(":",colon+1);
+        return URL.substr(colon+1,colon2-colon-1);
+    }
+    vector<string> getAssSid(vector<Tag> tags,vector<string> contents){
+        int bgcolorPos, colspanPos;
+        vector<string> ids;
+        for(int i=0; i<tags.size(); i++){
+            if(tags[i].name()=="td" && tags[i].attrSize()>1){
+                bgcolorPos=tags[i].attrPos("bgcolor");
+                colspanPos=tags[i].attrPos("colspan");
+                if(colspanPos>=0){
+                    if(bgcolorPos>=0){
+                        if((tags[i].attrValue(bgcolorPos)=="#cdcdcd"//green
+                         || tags[i].attrValue(bgcolorPos)=="#ccffcc"//grey
+                         || tags[i].attrValue(bgcolorPos)=="#f0ccf0"//pink
+                         || tags[i].attrValue(bgcolorPos)=="white")
+                         && tags[i+3].name()=="a"
+                         && contents[i+3]!=""){
+                            if(tags[i+5].name()=="a"){
+                                string id = getHandinsId(findLink(tags[i+5],"handins.cgi"));
+                                ids.push_back(id);
+                            }else{
+                                ids.push_back("-1");
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        return ids;
+    }
+    vector<string> getAssTypes(vector<Tag> tags,vector<string> contents){
+        int bgcolorPos, colspanPos;
+        vector<string> typeStack;
+        for(int i=0; i<tags.size(); i++){
+            if(tags[i].name()=="td" && tags[i].attrSize()>1){
+                bgcolorPos=tags[i].attrPos("bgcolor");
+                colspanPos=tags[i].attrPos("colspan");
+                if(colspanPos>=0){
+                    if(bgcolorPos>=0){
+                        if((tags[i].attrValue(bgcolorPos)=="#cdcdcd"//green
+                         || tags[i].attrValue(bgcolorPos)=="#ccffcc"//grey
+                         || tags[i].attrValue(bgcolorPos)=="#f0ccf0"//pink
+                         || tags[i].attrValue(bgcolorPos)=="white")
+                         && tags[i+3].name()=="a"
+                         && contents[i+3]!=""){
+                            if(tags[i].attrValue(bgcolorPos)=="#cdcdcd"){
+                                typeStack.push_back("green");
+                            }else if(tags[i].attrValue(bgcolorPos)=="#ccffcc"){
+                                typeStack.push_back("grey");
+                            }else if(tags[i].attrValue(bgcolorPos)=="#f0ccf0"){
+                                typeStack.push_back("pink");
+                            }else if(tags[i].attrValue(bgcolorPos)=="white"){
+                                typeStack.push_back("white");
+                            }else assert(false && "IMPOSSIBLE!");
+                        }
+                    }
+                }
+            }
+        }
+        return typeStack;
+    }
+    vector<string> getAssCurMods(vector<Tag> tags, vector<string> contents){
+        vector<string> curMods;
+        string currentMod;
+        int bgcolorPos,colspanPos,rowspanPos;
+        for(int i=0; i<tags.size(); i++){
+            if(tags[i].name()=="td" && tags[i].attrSize()>1){
+                bgcolorPos=tags[i].attrPos("bgcolor");
+                colspanPos=tags[i].attrPos("colspan");
+                rowspanPos=tags[i].attrPos("rowspan");
+                if(colspanPos>=0){
+                    if(bgcolorPos>=0){
+                        if((tags[i].attrValue(bgcolorPos)=="#cdcdcd"//green
+                         || tags[i].attrValue(bgcolorPos)=="#ccffcc"//grey
+                         || tags[i].attrValue(bgcolorPos)=="#f0ccf0"//pink
+                         || tags[i].attrValue(bgcolorPos)=="white")
+                         && tags[i+3].name()=="a"
+                         && contents[i+3]!=""){
+                            curMods.push_back(currentMod);
+                        }
+                    }
+                }
+            }
+            if(rowspanPos>=0){
+                if(contents[i+3].length()>3){
+                    currentMod=contents[i+3].substr(2);
+                }
+            }
+        }
+        return curMods;
     }
 
 //public:
@@ -201,6 +333,7 @@ public:
 
     int modNum;
     vector<Module> modules;
+    vector<Assignment> assignments;
    
     Html(string c, string p, string u) {
         //Class constructor here
@@ -220,7 +353,7 @@ public:
         period  = p;
         user    = u;
         //this will ask for password
-        header  = getHeader(CATE_URL,user);
+        //header  = getHeader(CATE_URL,user);
 
         //assignment
         
@@ -252,6 +385,26 @@ public:
             }
         }
         modules = mods;
+        
+        //assignments
+        vector<string> assIds       = getShowfileIds(curl.tags);
+        vector<string> assNames     = getShowfileNames(curl.tags,curl.contents);
+        vector<string> assTypes     = getAssTypes(curl.tags,curl.contents);
+        vector<string> assLinks     = getShowfileURLs(curl.tags);
+        vector<string> assSids      = getAssSid(curl.tags,curl.contents);
+        vector<string> assCurMods   = getAssCurMods(curl.tags,curl.contents);
+        for(int i=0; i<assIds.size(); i++){
+            if(assSids[i]!="-1"){
+                Curl curl_ass(this->getURL('h'),header,assIds[i]);
+                string assDueDate  = getAssDueDate(curl_ass.tags,curl_ass.contents);
+                Assignment ass(assIds[i],assNames[i],assTypes[i],assDueDate,assLinks[i],assSids[i],assCurMods[i]);
+                assignments.push_back(ass);
+            }else{
+                Assignment ass(assIds[i],assNames[i],assTypes[i],"-1",assLinks[i],assSids[i],assCurMods[i]);
+                assignments.push_back(ass);
+            }
+        }
+        
     }
     
     vector<Assignment> getAssignments() {

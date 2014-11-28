@@ -11,41 +11,41 @@ int main(){
     string period="1";
     string user = "cmy14";
     string url ="https://cate.doc.ic.ac.uk/timetable.cgi?period=1&class=c1&keyt=2014%3Anone%3Anone%3Acmy14";
-    string header=html.header;
+    string header=getHeader(CATE_URL,user);
     //fetch moduleIds and moduleNames
     Curl curl(url,header);
-    int bgcolorPos,colspanPos,rowspanPos;
+/*    int bgcolorPos,colspanPos,rowspanPos;
     string currentMod;
-    int dayscount=0;
+    //https://cate.doc.ic.ac.uk/handins.cgi?key=2014:1:110:c1:new:cmy14
     for(int i=0; i<curl.tags.size(); i++){
         if(curl.tags[i].name()=="td" && curl.tags[i].attrSize()>1){
             bgcolorPos=curl.tags[i].attrPos("bgcolor");
             colspanPos=curl.tags[i].attrPos("colspan");
             rowspanPos=curl.tags[i].attrPos("rowspan");
             if(colspanPos>=0){
-                cout<<curl.tags[i].attrValue(colspanPos)<<endl;
-                dayscount+=stoi(curl.tags[i].attrValue(colspanPos));
                 if(bgcolorPos>=0){
-                    cout<<dayscount<<endl;
-                    if((curl.tags[i].attrValue(bgcolorPos)=="#cdcdcd"
-                     || curl.tags[i].attrValue(bgcolorPos)=="#ccffcc"
+                    if((curl.tags[i].attrValue(bgcolorPos)=="#cdcdcd"//green
+                     || curl.tags[i].attrValue(bgcolorPos)=="#ccffcc"//grey
+                     || curl.tags[i].attrValue(bgcolorPos)=="#f0ccf0"//pink
                      || curl.tags[i].attrValue(bgcolorPos)=="white")
+                     && curl.tags[i+3].name()=="a"
                      && curl.contents[i+3]!=""){
-                        cout<<curl.tags[i].tag<<curl.contents[i]<<endl;
-                        cout<<currentMod<<" "<<curl.contents[i+3]<<endl;
-                    }
-                }else if(rowspanPos>=0){
-                    if(curl.contents[i+3].length()>3){
-                        currentMod=curl.contents[i+3].substr(2);
+                        cout<<currentMod<<" "<<curl.contents[i+3];
+                        if(curl.tags[i+5].name()=="a"){
+                            cout<<" "<<html.findLink(curl.tags[i+5],"handins.cgi")<<endl;
+                        }else{
+                            cout<<endl;
+                        }
                     }
                 }
             }
-        }
-        if(curl.tags[i].name()=="tr"){
-            dayscount=0;
+            if(rowspanPos>=0){
+                if(curl.contents[i+3].length()>3){
+                    currentMod=curl.contents[i+3].substr(2);
+                }
+            }
         }
     }
-   /* 
     vector<string> assIds = html.getShowfileIds(curl.tags);
     vector<string> assURLs = html.getShowfileURLs(curl.tags);
     vector<string> assNames = html.getShowfileNames(curl.tags,curl.contents);
