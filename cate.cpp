@@ -287,6 +287,8 @@ void runUpdate() {
 }
 
 bool isBefore(Assignment a1, Assignment a2) {
+    if (a1.getDueDate() == "-1") return false;
+    if (a2.getDueDate() == "-1") return true;
     return numDate(a1.getDueDate()) < numDate(a2.getDueDate());
 }
 
@@ -405,6 +407,7 @@ void runPull(string id) {
         //cout << pullCommand << endl;
         cout << "Pulling file for " + user + "." << endl;
         system(pullCommand.c_str());
+        cout << "File pulled to ./" << name << "." << fileType << endl;
 
     } else if (id[0] == 's') {
         
@@ -440,6 +443,7 @@ void runPull(string id) {
         //cout << pullCommand << endl;
         cout << "Pulling file for " + user + "." << endl;
         system(pullCommand.c_str());
+        cout << "File pulled to ./" << name << ".pdf" << endl;
 
         
     } else cout << "Error: pull id not valid" << endl;
@@ -491,7 +495,7 @@ void runCurrAss() {
         string today = day + " " + mon + " " + year;
         //cout << today << endl;
         
-        cout << left << setw(6) << "ID" << setw(30) << "Name" << setw(10) << "Type" << setw(15) << "Due Date" << setw(20) << "Module" << endl;
+        cout << left << setw(6) << "ID" << setw(30) << "Name" << setw(10) << "A/U" << setw(15) << "Due Date" << setw(20) << "Module" << endl;
         
         while (!ass.eof()) {
             string id;
@@ -502,6 +506,10 @@ void runCurrAss() {
             getline(ass, assType);
             string dueDate;
             getline(ass, dueDate);
+            if (assType == "green") assType = "A";
+            if (assType == "grey") assType = "U (Sub)";
+            if (assType == "pink") assType = "A (Grp)";
+            if (assType == "white") assType = "U";
             string link;
             getline(ass, link);
             string submitID;
@@ -542,7 +550,7 @@ string stringDate(int date) {
 
 void runAllAss() {
     //cout << "Listing all assigments:\n" << endl;
-    cout << left << setw(6) << "ID" << setw(30) << "Name" << setw(10) << "Type" << setw(15) << "Due Date" << setw(20) << "Module" << endl;
+    cout << left << setw(6) << "ID" << setw(30) << "Name" << setw(10) << "A/U" << setw(15) << "Due Date" << setw(20) << "Module" << endl;
     ifstream fin(assPath.c_str());
     if (fin.is_open()) {
         while (!fin.eof()) {
@@ -550,13 +558,15 @@ void runAllAss() {
             getline(fin, id);
             string name;
             getline(fin, name);
-            // isCounted is a bool value, stored as 0 or 1 in file
             string assType;
             getline(fin, assType);
-            if (assType == "1") assType = "Assesed";
-            else if (assType == "0") assType = "Non-Assesed";
+            if (assType == "green") assType = "A";
+            if (assType == "grey") assType = "U (Sub)";
+            if (assType == "pink") assType = "A (Grp)";
+            if (assType == "white") assType = "U";
             string dueDate;
             getline(fin, dueDate);
+            if (dueDate == "-1") dueDate = "-";
             string link;
             getline(fin, link);
             string submitID;

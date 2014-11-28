@@ -24,7 +24,65 @@ curl -u user -F "key=2014:1:23:"+cl+":submit:"+user -F "file-516-none=@cate_toke
 
 using namespace std;
 
-const string CATE_URL= "https://cate.doc.ic.ac.uk/";
+
+static string* declaration(string user, string cl, string period, string sId){
+    string header = getHeader(CATE_URL,user);
+    string url ="https://cate.doc.ic.ac.uk/handins.cgi?key=2014:"+period+":"+sId+":"+cl+":new:"+user;
+    Curl curl_inLeader(url,header);
+    string inLeader;
+    string* array=new string[2];
+    array[0] = header;
+    for(int i=0; i<curl_inLeader.tags.size();i++){
+        if(curl_inLeader.tags[i].name()=="input"){
+            if(curl_inLeader.tags[i].attrPos("name")>=0){
+                int pos = curl_inLeader.tags[i].attrPos("name");
+                if(curl_inLeader.tags[i].attrValue(pos)=="inLeader"){
+                    int pos = curl_inLeader.tags[i].attrPos("value");
+                    inLeader = curl_inLeader.tags[i].attrValue(pos);
+                }
+            }
+        }
+        if(curl_inLeader.tags[i].findLink("hardcover.cgi")!=""){
+            array[1]=curl_inLeader.tags[i].findLink("hardcover.cgi");
+        }
+    }
+    vector<string> forms;
+    forms.push_back("help-0=");
+    forms.push_back("help-1=");
+    forms.push_back("help-2=");
+    forms.push_back("help-3=");
+    forms.push_back("help-4=");
+    forms.push_back("help-5=");
+    forms.push_back("help-6=");
+    forms.push_back("help-7=");
+    forms.push_back("inLeader="+inLeader);
+    forms.push_back("inMember=");
+    forms.push_back("version=0");
+    forms.push_back("key=2014:"+period+":"+sId+":"+cl+":leader:"+user);
+
+    Curl curl_declear(url,header,forms);
+    return array;
+}
+
+static string submit(string user, string cl, string period, string sId){
+    //Pre: .git folder exist
+    string* array = declaration(user,cl,period,sId);
+    string header = array[0];
+    string hardcover = array[1];
+    string url ="https://cate.doc.ic.ac.uk/handins.cgi?key=2014:"+period+":"+sId+":"+cl+":new:"+user;
+    if(hardcover==""){
+        vector<string> forms2;
+        forms2.push_back("key=2014:1:23:c1:submit:cmy14");
+        forms2.push_back("file-516-none=@cate_token.txt");
+        string command = "git rev-parse HEAD > cate_token.txt";
+        system(command.c_str());
+        Curl submit(url,header,forms2);
+        system("rm cate_token.txt");
+        return "-1";
+    } else{
+        return hardcover;
+    }
+}
 
 
 class Html {
@@ -78,26 +136,17 @@ private:
         return url;
     }
 
-    string findLink(Tag tag,string file){
-        string url="";
-        for (int i = 0; i < tag.attrSize(); i++){
-            if(fileName(tag.attrValue(i))==file){
-                url=CATE_URL+tag.attrValue(i);
-            }
-        }
-        return url;
-    }
     vector<string> findLinks(vector<Tag> tags,string file){
         vector<string> URLStack;
         for (int i = 0; i < tags.size(); i++){
-            if(findLink(tags[i], file)!=""){
-                URLStack.push_back(findLink(tags[i], file));
+            if(tags[i].findLink(file)!=""){
+                URLStack.push_back(tags[i].findLink(file));
             }
         }
         return URLStack;
     }
     string getShowfileId(Tag tag){
-        string URL = this->findLink(tag, "showfile.cgi");
+        string URL = tag.findLink("showfile.cgi");
         int colon,colon2;
         //start from 6 to skip https://
         colon2 = URL.find_first_of(":",6);
@@ -202,7 +251,7 @@ private:
     }
 
     string getHandinsId(Tag tag){
-        string URL = this->findLink(tag, "handins.cgi");
+        string URL = tag.findLink("handins.cgi");
         if(URL!=""){
             int colon,colon2;
             colon2 = URL.find_first_of(":",6);

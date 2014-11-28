@@ -5,17 +5,6 @@
 #include <stdio.h>
 #include "tag.hpp"
 
-//miscellaneous
-string fileName(string url){
-    string stringStack;
-    for(int i=0; i < url.length(); i++){
-        if(url[i]=='?'||url[i]=='#'){
-            break;
-        }
-        stringStack += url[i];
-    }
-    return stringStack;
-}
 string getHeader(string url, string user){
     FILE *f;
     int i;
@@ -40,7 +29,7 @@ string getHeader(string url, string user){
         }
         pclose(f);
     }while(i!=1);
-    header = header.substr(6);
+    header = header.substr(6,header.size()-7);
     return header;
 }  
 
@@ -52,15 +41,15 @@ public:
     vector<string> contents;
 
     //html manipulation functions
-    Curl(string u, string header="",string form=""){
+    Curl(string u, string header="",vector<string> forms=vector<string>()){
         url = u;
         //start fetch data
         FILE *f;
         cout<<"Fetching "<<u<<endl;
         string command = "curl -s -H \""+header+"\" ";
         char buff[512];
-        if(form!=""){
-            command += "-F \""+form+"\" ";
+        for(int i=0; i<forms.size(); i++){
+            command += "-F \""+forms[i]+"\" ";
         }
         command += " \""+url+"\"";
 

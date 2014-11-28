@@ -2,6 +2,19 @@
 #include <vector>
 #include <string>
 
+const string CATE_URL= "https://cate.doc.ic.ac.uk/";
+
+//miscellaneous
+string fileName(string url){
+    string stringStack;
+    for(int i=0; i < url.length(); i++){
+        if(url[i]=='?'||url[i]=='#'){
+            break;
+        }
+        stringStack += url[i];
+    }
+    return stringStack;
+}
 class Tag{
     /*
     string tag.name()
@@ -93,5 +106,14 @@ public:
     string attrValue(int n){
         vector<string> vals=this->attrValues();
         return vals[n];
+    }
+    string findLink(string file){
+        string url="";
+        for (int i = 0; i < this->attrSize(); i++){
+            if(fileName(this->attrValue(i))==file){
+                url=CATE_URL+this->attrValue(i);
+            }
+        }
+        return url;
     }
 };
