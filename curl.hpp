@@ -60,6 +60,7 @@ public:
             html += buff;
         }
         pclose(f);
+
         //end fetch data
         //split html
         tags = this->get_tags();
