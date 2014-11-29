@@ -1,11 +1,13 @@
 #include <iostream>
 #include <fstream>
+#include <sstream>
 #include <string>
 #include <sys/stat.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <iomanip>
 #include <vector>
+#include <algorithm>
 #include <ctime>
 #include <map>
 #include "html.hpp"
@@ -587,13 +589,18 @@ int numDate(string date) {
     string year = date.substr(7, 4);
     //cout << numMonths[mon] << endl;
     string newDate = year + numMonths[mon] + day;
-    return stoi(newDate);
+    stringstream convert(newDate);
+    int result;
+    convert >> result;
+    return result;
 }
 
 
 //Gives date in the form "dd mon yyyy"
 string stringDate(int date) {
-    string strDate = to_string(date);
+    stringstream convert;
+    convert << date;
+    string strDate = convert.str();
     return strDate.substr(6, 2) + " " + stringMonths[strDate.substr(4, 2)] + " " + strDate.substr(0, 4);
 }
 
@@ -662,7 +669,7 @@ string* getClassPeriod() {
 
 void runSubmit(string id) {
     
-    ifstream ass(assPath);
+    ifstream ass(assPath.c_str());
     if (ass.is_open()) {
         bool found = false;
         while (!ass.eof()) {
