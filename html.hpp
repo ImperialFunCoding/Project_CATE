@@ -92,7 +92,8 @@ static bool submit(string user, string cl, string period,string header, string s
     } else{
         cout<<"Downloading hard cover..."<<endl;
         cout<<"Fetching "+hardcover<<endl;
-        string command = "curl -s -H "+header+" "+hardcover+" > hardcover-"+sId+".ps";
+        string command = "curl -s -H \""+header+"\" \""+hardcover+"\" > hardcover-"+sId+".ps";
+        cout<< command<<endl;
         system(command.c_str());
         cout<<"Hardcover fetched at: ./hardcover-"+sId+".ps"<<endl<<endl;
         return true;

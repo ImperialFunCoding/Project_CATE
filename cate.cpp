@@ -25,7 +25,7 @@ using namespace std;
      cate ass [-a]
      cate --help
      cate submit <id>
-     cate getcover <id>
+     cate getcover <ids>
 */
 
 //global map for months
@@ -153,7 +153,7 @@ void runAllAss();
 
 string* getClassPeriod();
 
-void runSubmit(string id);
+void runSubmit(char *argv[], int size, string function);
 
 int main(int argc, char *argv[]) {
     if (argc == 1) {
@@ -225,16 +225,16 @@ void execCommand(int size, char *argv[]) {
         
         if (size == 3) {
             if (fileExists(".git/HEAD")) {
-                runSubmit(argv[2]);
+                runSubmit(argv, size, "submit");
             } else cout << "You are not in a git repository" << endl;
         } else cout << "Correct usage: cate submit <id>" << endl;
         
     } else if (string(argv[1]) == GETCOVER) {
         
-        if (size == 3) {
+        if (size > 2) {
                 //Executes the same function as submit
-                runSubmit(argv[2]);
-        } else cout << "Correct usage: cate getcover <id>" << endl;
+                runSubmit(argv, size, "getcover");
+        } else cout << "Correct usage: cate getcover <ids>" << endl;
         
     } else cout << "Impossible!" << endl;
 }
@@ -407,7 +407,7 @@ bool isValidID(string id) {
 void runAllPull(char *argv[], int size) {
     
     string user;
-    cout << "Please enter cate username" << endl;
+    cout << "Please enter cate username:" << endl;
     getline(cin, user);
     string header = getHeader(CATE_URL, user);
     
@@ -542,7 +542,7 @@ void runCurrAss() {
         string today = day + " " + mon + " " + year;
         //cout << today << endl;
         
-        cout << left << setw(6) << "ID" << setw(28) << "Name" << setw(10) << "A/U" << setw(13) << "Due Date" << setw(20) << "Module" << endl;
+        cout << left << setw(6) << "ID" << setw(28) << "Name" << setw(10) << "Assessed" << setw(13) << "Due Date" << setw(20) << "Module" << endl;
         
         while (!ass.eof()) {
             string id;
@@ -554,10 +554,10 @@ void runCurrAss() {
             getline(ass, assType);
             string dueDate;
             getline(ass, dueDate);
-            if (assType == "green") assType = "A";
-            if (assType == "grey") assType = "U (Sub)";
-            if (assType == "pink") assType = "A (Grp)";
-            if (assType == "white") assType = "U";
+            if (assType == "green") assType = "Yes (Sub)";
+            if (assType == "grey") assType = "No (Sub)";
+            if (assType == "pink") assType = "Yes (Grp)";
+            if (assType == "white") assType = "No";
             string link;
             getline(ass, link);
             string submitID;
@@ -607,7 +607,7 @@ string stringDate(int date) {
 
 void runAllAss() {
     //cout << "Listing all assigments:\n" << endl;
-    cout << left << setw(6) << "ID" << setw(28) << "Name" << setw(10) << "A/U" << setw(13) << "Due Date" << setw(20) << "Module" << endl;
+    cout << left << setw(6) << "ID" << setw(28) << "Name" << setw(10) << "Assessed" << setw(13) << "Due Date" << setw(20) << "Module" << endl;
     ifstream fin(assPath.c_str());
     if (fin.is_open()) {
         while (!fin.eof()) {
@@ -618,10 +618,10 @@ void runAllAss() {
             if (name.length() > 27) name = name.substr(0, 24) + "...";
             string assType;
             getline(fin, assType);
-            if (assType == "green") assType = "A";
-            if (assType == "grey") assType = "U (Sub)";
-            if (assType == "pink") assType = "A (Grp)";
-            if (assType == "white") assType = "U";
+            if (assType == "green") assType = "Yes (Sub)";
+            if (assType == "grey") assType = "No (Sub)";
+            if (assType == "pink") assType = "Yes (Grp)";
+            if (assType == "white") assType = "No";
             string dueDate;
             getline(fin, dueDate);
             if (dueDate == "-1") dueDate = "-";
@@ -667,32 +667,57 @@ string* getClassPeriod() {
     return cp;
 }
 
-void runSubmit(string id) {
+void runSubmit(char *argv[], int size, string function) {
     
-    ifstream ass(assPath.c_str());
-    if (ass.is_open()) {
-        bool found = false;
-        while (!ass.eof()) {
-            string line;
-            getline(ass, line);
-            if (line == id) {found = true; break;}
-        }
+    vector<string> ids;
+    vector<string> submitIDs;
+    bool anyValid = false;
+    bool invalid = false;
+    
+    for (int i = 2; i < size; i++) {
+        ifstream ass(assPath.c_str());
+        if (ass.is_open()) {
+            
+            bool found = false;
+            while (!ass.eof()) {
+                string line;
+                getline(ass, line);
+                if (line == argv[i]) {found = true; ids.push_back(line); break;}
+            }
+            
+            if (!found) {
+                invalid = true;
+                cout << argv[i] << " not valid for submission." << endl;
+                continue;
+            }
+            
+            string submitID;
+            getline(ass, submitID);
+            getline(ass, submitID);
+            getline(ass, submitID);
+            getline(ass, submitID);
+            getline(ass, submitID);
+            
+            if (submitID == "-1") {
+                ids.pop_back();
+                invalid = true;
+                cout << argv[i] << " is not valid." << endl;
+                continue;
+            } else {
+                if (!anyValid) anyValid = true;
+                submitIDs.push_back(submitID);
+            }
+            
+            ass.close();
+            
+        } else cout << "Cannot submit assignment" << endl;
+
+    }
+    
+    if (anyValid) {
         
-        if (!found) {
-            cout << "id not valid for submission" << endl;
-            return;
-        }
-        
-        string submitID;
-        getline(ass, submitID);
-        getline(ass, submitID);
-        getline(ass, submitID);
-        getline(ass, submitID);
-        getline(ass, submitID);
-        
-        if (submitID == "-1") {
-            cout << "This ID is not valid." << endl;
-            return;
+        if (invalid) {
+            cout << "...submitting remaining valid ids." << endl << endl;
         }
         
         string* cp = getClassPeriod();
@@ -705,11 +730,25 @@ void runSubmit(string id) {
         
         cout << "Submitting a blank declaration for the assignment." << endl;
         cout << "If you have any declarations to add, add them on the cate website." << endl;
-        submit(user, cl, pd, submitID);
+        vector<bool> result = submit_multiple(user, cl, pd, submitIDs, function);
+        
+        /*
+        for (int j = 0; j < ids.size(); j++) {
+            cout << "Submitting " << ids[j] << endl;
+        }
+        */
+        
+        for (int j = 0; j < result.size(); j++) {
+            if (result[j] == true) {
+                cout << "Submitted " << ids[j] << "." << endl;
+            } else {
+                cout << "Cannot get cover for " << ids[j] << endl;
+            }
+        }
+
         cout << "Complete." << endl;
         
-        
-    } else cout << "Cannot submit assignment" << endl;
+    } else cout << "Nothing to submit." << endl;
     
 }
 
