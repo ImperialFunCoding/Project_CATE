@@ -4,7 +4,6 @@
 #include <string>
 #include <stdio.h>
 #include "tag.hpp"
-#include "tell_term.hpp"
 
 string getHeader(string url, string user){
     int i;
@@ -17,6 +16,11 @@ string getHeader(string url, string user){
             "--trace-ascii - \""+url+"\" | grep \"Authorization:\\|401\\ Authorization\\ Required\"";
 
         header = tell_term(command);
+        for(int j=0; j<header.length(); j++){
+            if(header[j]=='\n'){
+                i++;
+            }
+        }
     }while(i!=1);
     header = header.substr(6,header.size()-7);
     return header;
