@@ -13,14 +13,15 @@ curl -u user -d "help-0=&help-1=&help-2=&help-3=&help-4=&help-5=&help-6=&help-7=
 submit cate_token.txt
 curl -u user -F "key=2014:1:23:"+cl+":submit:"+user -F "file-516-none=@cate_token.txt" "https://cate.doc.ic.ac.uk/handins.cgi?key=2014:1:23:c1:new:"+user
 */
-#include "assigment.hpp"
-#include "module.hpp"
 #include <iostream>
 #include <vector>
 #include <string>
 #include <assert.h>
-#include "curl.hpp"
 #include <stdlib.h>
+#include "assigment.hpp"
+#include "module.hpp"
+#include "print.hpp"
+#include "curl.hpp"
 
 using namespace std;
 
@@ -65,7 +66,8 @@ static string declaration(string user, string cl, string period, string header, 
     return ss;
 }
 
-static bool submit(string user, string cl, string period,string header, string sId, string type){
+static bool submit(string user, string cl, string period,string header
+            , string sId, string type, bool toPrint,string printer){
     //Pre: .git folder exist
     string hardcover = declaration(user,cl,period,header,sId);
     if(hardcover == "0") return false;
@@ -92,10 +94,13 @@ static bool submit(string user, string cl, string period,string header, string s
     } else{
         cout<<"Downloading hard cover..."<<endl;
         cout<<"Fetching "+hardcover<<endl;
-        string command = "curl -s -H \""+header+"\" \""+hardcover+"\" > hardcover-"+sId+".ps";
-        cout<< command<<endl;
+        string filename="hardcover-"+sId+".ps";
+        string command = "curl -s -H \""+header+"\" \""+hardcover+"\" > "+filename;
         system(command.c_str());
-        cout<<"Hardcover fetched at: ./hardcover-"+sId+".ps"<<endl<<endl;
+        cout<<"Hardcover fetched at: ./"+filename<<endl<<endl;
+        if(toPrint){ 
+            printRequest(filename,printer);
+        }
         return true;
     }
 }
@@ -104,8 +109,20 @@ static vector<bool> submit_multiple(string user, string cl, string period
                                     , vector<string> sIds, string type){
     string header = getHeader(CATE_URL,user);
     vector<bool> bs;
+    bool toPrint=false;
+    string c;
+    string printer;
+    if(type=="getcover"){
+        cout<<"Would you like to print all the covers? (y/n): ";
+        getline(cin,c);
+        if(c=="y"){
+            toPrint=true;
+            printer = askPrinter();
+        }
+    }
     for(int i=0; i<sIds.size(); i++){
-        bs.push_back(submit(user,cl,period,header,sIds[i],type));
+        bs.push_back(submit(user,cl,period,header,
+                    sIds[i],type,toPrint,printer));
     }
     return bs;
 }
