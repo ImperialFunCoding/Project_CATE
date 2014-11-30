@@ -4,9 +4,9 @@
 #include <string>
 #include <stdio.h>
 #include "tag.hpp"
+#include "tell_term.hpp"
 
 string getHeader(string url, string user){
-    FILE *f;
     int i;
     string header = "";
     do{
@@ -15,19 +15,8 @@ string getHeader(string url, string user){
         string command = "curl -s "
             "-u \""+user+"\" "
             "--trace-ascii - \""+url+"\" | grep \"Authorization:\\|401\\ Authorization\\ Required\"";
-        char buff[512];
 
-        if(!(f = popen(command.c_str(), "r"))){
-            return "ERROR IN CALLING CURL. INVALID COMMAND.";
-        }
-
-        while(fgets(buff, sizeof(buff), f)!=NULL){
-            header += buff;
-            if(header[header.size()-1]=='\n'){
-                i++;
-            }
-        }
-        pclose(f);
+        header = tell_term(command);
     }while(i!=1);
     header = header.substr(6,header.size()-7);
     return header;
@@ -44,22 +33,14 @@ public:
     Curl(string u, string header="",vector<string> forms=vector<string>()){
         url = u;
         //start fetch data
-        FILE *f;
         cout<<"Fetching "<<u<<endl;
         string command = "curl -s -H \""+header+"\" ";
-        char buff[512];
         for(int i=0; i<forms.size(); i++){
             command += "-F \""+forms[i]+"\" ";
         }
         command += " \""+url+"\"";
 
-        assert (f = popen(command.c_str(), "r"));
-
-
-        while(fgets(buff, sizeof(buff), f)!=NULL){
-            html += buff;
-        }
-        pclose(f);
+        html = tell_term(command);
 
         //end fetch data
         //split html
