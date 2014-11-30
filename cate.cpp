@@ -115,8 +115,9 @@ const string helpSection =  "\nAll possible cate commands:\n"
                             "                            eg. for Computing first year in autumn,\n"
                             "                                type into terminal: cate set c1 1\n"
                             "\n"
-                            "         cate pull [<id>]   Downloads files to your current directory.\n"
-                            "                            Input IDs of the files you wish to download.\n"
+                            "         cate pull [<id>]   Downloads files to your current directory, and\n"
+                            "                            asks you if you want to print them. Input the\n"
+                            "                            IDs of the files you wish to download.\n"
                             "                            eg. To download files s502, s545 and n19,\n"
                             "                                type into terminal: cate pull s502 s545 n19\n"
                             "\n"
@@ -140,9 +141,9 @@ const string helpSection =  "\nAll possible cate commands:\n"
                             "                            upload.\n"
                             "\n"
                             "     cate getcover [<id>]   Handles the submission of non-programming\n"
-                            "                            assignments.\n"
+                            "                            assignments. This will download the cover pages\n"
+                            "                            and ask you if you want to print them.\n"
                             "                            eg. type into terminal: cate getcover s502 s545\n"
-                            "                            This will download "
                             "\n";
 
 //Path for attributes file
@@ -196,6 +197,7 @@ string* getClassPeriod();
 void runSubmit(char *argv[], int size, string function);
 
 int main(int argc, char *argv[]) {
+
     if (argc == 1) {
         cout << "Incorrect usage, see 'cate --help' for more information" << endl;
         return 1;
@@ -212,6 +214,7 @@ int main(int argc, char *argv[]) {
         cout << "Incorrect usage, see 'cate --help' for more information" << endl;
     }
     return 0;
+
 }
 
 // Checks if a string is in an array of strings
@@ -284,7 +287,7 @@ void execCommand(int size, char *argv[]) {
 void runUpdate() {
     string *cp = getClassPeriod();
     string username;
-    cout << "Please enter your cate username:" << endl;
+    cout << "Please enter your cate username: ";
     getline(cin, username);
     string cl = cp[0];
     string pd = cp[1];
@@ -447,7 +450,7 @@ bool isValidID(string id) {
 void runAllPull(char *argv[], int size) {
     
     string user;
-    cout << "Please enter cate username:" << endl;
+    cout << "Please enter cate username: ";
     getline(cin, user);
     string header = getHeader(CATE_URL, user);
     
@@ -498,13 +501,13 @@ void runPull(string id, string header) {
         
         string response;
         do {
-            cout << "Would you like to print this file? (y/n)" << endl;
+            cout << "Would you like to print this file? (y/n): ";
             getline(cin, response);
         } while (response != "y" && response != "n");
         
         if (response == "y") {
-            cout << saveAs << endl;
-            //print(saveAs);
+            //string printer = askPrinter();
+            //printRequest(saveAs, printer);
         }
 
     } else if (id[0] == 's') {
@@ -545,13 +548,13 @@ void runPull(string id, string header) {
         
         string response;
         do {
-            cout << "Would you like to print this file? (y/n)" << endl;
+            cout << "Would you like to print this file? (y/n): ";
             getline(cin, response);
         } while (response != "y" && response != "n");
         
         if (response == "y") {
-            cout << saveAs << endl;
-            //print(saveAs);
+            //string printer = askPrinter();
+            //printRequest(saveAs, printer);
         }
 
     } else cout << "Error: pull id not valid" << endl;
@@ -793,7 +796,7 @@ void runSubmit(char *argv[], int size, string function) {
         string cl = cp[0];
         string pd = cp[1];
         
-        cout << "Please enter your cate username:" << endl;
+        cout << "Please enter your cate username: ";
         string user;
         getline(cin, user);
         
