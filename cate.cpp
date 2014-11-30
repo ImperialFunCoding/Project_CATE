@@ -11,6 +11,7 @@
 #include <ctime>
 #include <map>
 #include "html.hpp"
+#include "date.hpp"
 //#include "assigment.hpp"
 //#include "module.hpp"
 
@@ -103,7 +104,46 @@ void setNumMonths() {
 
 
 //Help section
-const string helpSection = "Help Section";
+//const string helpSection = "Help Section";
+const string helpSection =  "\nAll possible cate commands:\n"
+                            "\n"
+                            "              cate update   Updates your computer with the latest changes\n"
+                            "                            on cate, for example if a new assignment has\n"
+                            "                            been uploaded.\n"
+                            "\n"
+                            "cate set <class> <period>   Sets your current class and period.\n"
+                            "                            eg. for Computing first year in autumn,\n"
+                            "                                type into terminal: cate set c1 1\n"
+                            "\n"
+                            "         cate pull [<id>]   Downloads files to your current directory.\n"
+                            "                            Input IDs of the files you wish to download.\n"
+                            "                            eg. To download files s502, s545 and n19,\n"
+                            "                                type into terminal: cate pull s502 s545 n19\n"
+                            "\n"
+                            "                 cate ass   Lists the current assignments, along with ID and\n"
+                            "                            due date.\n"
+                            "\n"
+                            "              cate ass -a   Lists all the assignments which are available on\n"
+                            "                            cate along with their IDs.\n"
+                            "\n"
+                            "                cate mods   Lists all the modules for the current term,\n"
+                            "                            along with their module numbers.\n"
+                            "\n"
+                            "    cate mods <modnumber>   Lists all the notes available for a specific\n"
+                            "                            module, along with the IDs.\n"
+                            "                            eg. type into terminal: cate mods 3\n"
+                            "\n"
+                            "         cate submit <id>   Submits a programming assignment to cate. Right\n"
+                            "                            after you push your work, just run this command\n"
+                            "                            from your assignment's folder, and it will\n"
+                            "                            handle the declaration submission and cate token\n"
+                            "                            upload.\n"
+                            "\n"
+                            "     cate getcover [<id>]   Handles the submission of non-programming\n"
+                            "                            assignments.\n"
+                            "                            eg. type into terminal: cate getcover s502 s545\n"
+                            "                            This will download "
+                            "\n";
 
 //Path for attributes file
 const string attPath = string(getenv("HOME"))+"/.cateFiles/attributes.txt";
@@ -449,12 +489,23 @@ void runPull(string id, string header) {
         //get username from link
         string user = link.substr(link.find(":NOTES:"));
         user = user.substr(7);
-        string saveAs = " > \"" + name + "." + fileType + "\"";
-        string pullCommand = "curl -s -H \""+ header +"\" \"" + link +"\"" + saveAs;
+        string saveAs = "\"" + name + "." + fileType + "\"";
+        string pullCommand = "curl -s -H \""+ header +"\" \"" + link +"\" > " + saveAs;
         //cout << pullCommand << endl;
         cout << "Pulling file for " + user + "." << endl;
         system(pullCommand.c_str());
         cout << "File pulled to ./" << name << "." << fileType << endl;
+        
+        string response;
+        do {
+            cout << "Would you like to print this file? (y/n)" << endl;
+            getline(cin, response);
+        } while (response != "y" && response != "n");
+        
+        if (response == "y") {
+            cout << saveAs << endl;
+            //print(saveAs);
+        }
 
     } else if (id[0] == 's') {
         
@@ -485,14 +536,24 @@ void runPull(string id, string header) {
         //get username from link
         string user = link.substr(link.find(":SPECS:"));
         user = user.substr(7);
-        string saveAs = " > \"" + name + "." + "pdf\"";
-        string pullCommand = "curl -s -H \""+ header +"\" \"" + link +"\"" + saveAs;
+        string saveAs = "\"" + name + ".pdf\"";
+        string pullCommand = "curl -s -H \""+ header +"\" \"" + link +"\" > " + saveAs;
         //cout << pullCommand << endl;
         cout << "Pulling file for " + user + "." << endl;
         system(pullCommand.c_str());
         cout << "File pulled to ./" << name << ".pdf" << endl;
-
         
+        string response;
+        do {
+            cout << "Would you like to print this file? (y/n)" << endl;
+            getline(cin, response);
+        } while (response != "y" && response != "n");
+        
+        if (response == "y") {
+            cout << saveAs << endl;
+            //print(saveAs);
+        }
+
     } else cout << "Error: pull id not valid" << endl;
 }
 
@@ -569,6 +630,14 @@ void runCurrAss() {
             //Print ass if due date has not passed
             if (numDate(today) <= numDate(dueDate)) {
                 if (numDate(today) == numDate(dueDate)) dueDate = "Today";
+                else if (dateDiff(numDate(today), numDate(dueDate)) == 1) {
+                    dueDate = "Tomorrow";
+                } else if (dateDiff(numDate(today), numDate(dueDate)) <= 7) {
+                    stringstream convert;
+                    convert << dateDiff(numDate(today), numDate(dueDate));
+                    string daysLeft = convert.str();
+                    dueDate = daysLeft + " days left";
+                }
                 cout << left << setw(6) << id << setw(28) << name << setw(10) << assType << setw(13) << dueDate << setw(20)<< module << endl;
             }
 
