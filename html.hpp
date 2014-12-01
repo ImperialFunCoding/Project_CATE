@@ -13,25 +13,26 @@ curl -u user -d "help-0=&help-1=&help-2=&help-3=&help-4=&help-5=&help-6=&help-7=
 submit cate_token.txt
 curl -u user -F "key=2014:1:23:"+cl+":submit:"+user -F "file-516-none=@cate_token.txt" "https://cate.doc.ic.ac.uk/handins.cgi?key=2014:1:23:c1:new:"+user
 */
-#include "assigment.hpp"
-#include "module.hpp"
 #include <iostream>
 #include <vector>
 #include <string>
 #include <assert.h>
-#include "curl.hpp"
 #include <stdlib.h>
+#include "assigment.hpp"
+#include "module.hpp"
+#include "print.hpp"
+#include "curl.hpp"
 
 using namespace std;
 
 
-static string* declaration(string user, string cl, string period, string sId){
-    string header = getHeader(CATE_URL,user);
+static string declaration(string user, string cl, string period, string header, string sId){
+    cout<<endl<<"Submiting empty declaration..."<<endl;
     string url ="https://cate.doc.ic.ac.uk/handins.cgi?key=2014:"+period+":"+sId+":"+cl+":new:"+user;
     Curl curl_inLeader(url,header);
+    string ss="1";
+    if(curl_inLeader.html=="") return "0";
     string inLeader;
-    string* array=new string[2];
-    array[0] = header;
     for(int i=0; i<curl_inLeader.tags.size();i++){
         if(curl_inLeader.tags[i].name()=="input"){
             if(curl_inLeader.tags[i].attrPos("name")>=0){
@@ -43,7 +44,7 @@ static string* declaration(string user, string cl, string period, string sId){
             }
         }
         if(curl_inLeader.tags[i].findLink("hardcover.cgi")!=""){
-            array[1]=curl_inLeader.tags[i].findLink("hardcover.cgi");
+            ss=curl_inLeader.tags[i].findLink("hardcover.cgi");
         }
     }
     vector<string> forms;
@@ -61,31 +62,70 @@ static string* declaration(string user, string cl, string period, string sId){
     forms.push_back("key=2014:"+period+":"+sId+":"+cl+":leader:"+user);
 
     Curl curl_declear(url,header,forms);
-    return array;
+    if(curl_declear.html=="") return "0";
+    return ss;
 }
 
-static void submit(string user, string cl, string period, string sId){
+static bool submit(string user, string cl, string period,string header
+            , string sId, string type, bool toPrint,string printer){
     //Pre: .git folder exist
-    string* array = declaration(user,cl,period,sId);
-    string header = array[0];
-    string hardcover = array[1];
+    string hardcover = declaration(user,cl,period,header,sId);
+    if(hardcover == "0") return false;
     string url ="https://cate.doc.ic.ac.uk/handins.cgi?key=2014:"+period+":"+sId+":"+cl+":new:"+user;
+    cout<<endl;
     if(hardcover==""){
-        vector<string> forms2;
-        forms2.push_back("key=2014:1:23:c1:submit:cmy14");
-        forms2.push_back("file-516-none=@cate_token.txt");
-        string command = "git rev-parse HEAD > cate_token.txt";
-        system(command.c_str());
-        Curl submit(url,header,forms2);
-        system("rm cate_token.txt");
-        return;
+        if(type=="submit"){
+            vector<string> forms2;
+            forms2.push_back("key=2014:1:23:c1:submit:cmy14");
+            forms2.push_back("file-516-none=@cate_token.txt");
+            cout<<"Creating cate_token.txt..."<<endl;
+            system("git rev-parse HEAD | xargs -i echo {} \"> cate_token.txt\"");
+            string command = "git rev-parse HEAD > cate_token.txt";
+            system(command.c_str());
+            cout<<"Submiting cate_token.txt..."<<endl;
+            Curl submit(url,header,forms2);
+            cout<<endl;
+            system("rm -f cate_token.txt");
+            cout<<"Deleting cate_token.txt..."<<endl;
+            return true;
+        } else{
+            return false;
+        }
     } else{
-        string command = "curl -s -H "+header+" "+hardcover+">hardcover.ps";
+        cout<<"Downloading hard cover..."<<endl;
+        cout<<"Fetching "+hardcover<<endl;
+        string filename="hardcover-"+sId+".ps";
+        string command = "curl -s -H \""+header+"\" \""+hardcover+"\" > "+filename;
         system(command.c_str());
-        return;
+        cout<<"Hardcover fetched at: ./"+filename<<endl<<endl;
+        if(toPrint){ 
+            printRequest(filename,printer);
+        }
+        return true;
     }
 }
 
+static vector<bool> submit_multiple(string user, string cl, string period
+                                    , vector<string> sIds, string type){
+    string header = getHeader(CATE_URL,user);
+    vector<bool> bs;
+    bool toPrint=false;
+    string c;
+    string printer;
+    if(type=="getcover"){
+        cout<<"Would you like to print all the covers? (y/n): ";
+        getline(cin,c);
+        if(c=="y"){
+            toPrint=true;
+            printer = askPrinter();
+        }
+    }
+    for(int i=0; i<sIds.size(); i++){
+        bs.push_back(submit(user,cl,period,header,
+                    sIds[i],type,toPrint,printer));
+    }
+    return bs;
+}
 
 class Html {
     

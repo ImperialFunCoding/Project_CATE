@@ -11,6 +11,7 @@
 #include <ctime>
 #include <map>
 #include "html.hpp"
+#include "date.hpp"
 //#include "assigment.hpp"
 //#include "module.hpp"
 
@@ -25,7 +26,7 @@ using namespace std;
      cate ass [-a]
      cate --help
      cate submit <id>
-     cate getcover <id>
+     cate getcover <ids>
 */
 
 //global map for months
@@ -103,7 +104,50 @@ void setNumMonths() {
 
 
 //Help section
-const string helpSection = "Help Section";
+//const string helpSection = "Help Section";
+const string helpSection =  "\nAll possible cate commands:\n"
+                            "\n"
+                            "              cate update   Updates your computer with the latest changes\n"
+                            "                            on cate, for example if a new assignment has\n"
+                            "                            been uploaded.\n"
+                            "\n"
+                            "cate set <class> <period>   Sets your current class and period.\n"
+                            "                            eg. for Computing first year in autumn,\n"
+                            "                                type into terminal: cate set c1 1\n"
+                            "                                for JMC first year in autumn,\n"
+                            "                                type into terminal: cate set j1 1\n"
+                            "\n"
+                            "                 cate ass   Lists the assignments for which the deadline\n"
+                            "                            has not passed, with their IDs and due date.\n"
+                            "\n"
+                            "              cate ass -a   Lists all the assignments which are available on\n"
+                            "                            cate along with their IDs.\n"
+                            "\n"
+                            "                cate mods   Lists all the modules for the current term,\n"
+                            "                            along with their module numbers.\n"
+                            "\n"
+                            "    cate mods <modnumber>   Lists all the notes available for a specific\n"
+                            "                            module, along with the IDs.\n"
+                            "                            eg. type into terminal: cate mods 3\n"
+                            "\n"
+                            "         cate pull [<id>]   Downloads files to your current directory, and\n"
+                            "                            asks you if you want to print them. Input the\n"
+                            "                            IDs of the files you wish to download.\n"
+                            "                            eg. To download files s502, s545 and n19,\n"
+                            "                                type into terminal: cate pull s502 s545 n19\n"
+                            "                                where s502, s545 and n19 are IDs.\n"
+                            "\n"
+                            "         cate submit <id>   Submits a programming assignment to cate. Right\n"
+                            "                            after you push your work, just run this command\n"
+                            "                            from your assignment's folder, and it will\n"
+                            "                            handle the declaration submission and cate token\n"
+                            "                            upload.\n"
+                            "\n"
+                            "     cate getcover [<id>]   Handles the submission of non-programming\n"
+                            "                            assignments. This will download the cover pages\n"
+                            "                            and ask you if you want to print them.\n"
+                            "                            eg. type into terminal: cate getcover s502 s545\n"
+                            "\n";
 
 //Path for attributes file
 const string attPath = string(getenv("HOME"))+"/.cateFiles/attributes.txt";
@@ -153,9 +197,10 @@ void runAllAss();
 
 string* getClassPeriod();
 
-void runSubmit(string id);
+void runSubmit(char *argv[], int size, string function);
 
 int main(int argc, char *argv[]) {
+
     if (argc == 1) {
         cout << "Incorrect usage, see 'cate --help' for more information" << endl;
         return 1;
@@ -172,6 +217,7 @@ int main(int argc, char *argv[]) {
         cout << "Incorrect usage, see 'cate --help' for more information" << endl;
     }
     return 0;
+
 }
 
 // Checks if a string is in an array of strings
@@ -225,16 +271,16 @@ void execCommand(int size, char *argv[]) {
         
         if (size == 3) {
             if (fileExists(".git/HEAD")) {
-                runSubmit(argv[2]);
+                runSubmit(argv, size, "submit");
             } else cout << "You are not in a git repository" << endl;
         } else cout << "Correct usage: cate submit <id>" << endl;
         
     } else if (string(argv[1]) == GETCOVER) {
         
-        if (size == 3) {
+        if (size > 2) {
                 //Executes the same function as submit
-                runSubmit(argv[2]);
-        } else cout << "Correct usage: cate getcover <id>" << endl;
+                runSubmit(argv, size, "getcover");
+        } else cout << "Correct usage: cate getcover <ids>" << endl;
         
     } else cout << "Impossible!" << endl;
 }
@@ -244,7 +290,7 @@ void execCommand(int size, char *argv[]) {
 void runUpdate() {
     string *cp = getClassPeriod();
     string username;
-    cout << "Please enter your cate username:" << endl;
+    cout << "Please enter your cate username: ";
     getline(cin, username);
     string cl = cp[0];
     string pd = cp[1];
@@ -407,7 +453,7 @@ bool isValidID(string id) {
 void runAllPull(char *argv[], int size) {
     
     string user;
-    cout << "Please enter cate username" << endl;
+    cout << "Please enter cate username: ";
     getline(cin, user);
     string header = getHeader(CATE_URL, user);
     
@@ -449,12 +495,23 @@ void runPull(string id, string header) {
         //get username from link
         string user = link.substr(link.find(":NOTES:"));
         user = user.substr(7);
-        string saveAs = " > \"" + name + "." + fileType + "\"";
-        string pullCommand = "curl -s -H \""+ header +"\" \"" + link +"\"" + saveAs;
+        string saveAs = "\"" + name + "." + fileType + "\"";
+        string pullCommand = "curl -s -H \""+ header +"\" \"" + link +"\" > " + saveAs;
         //cout << pullCommand << endl;
         cout << "Pulling file for " + user + "." << endl;
         system(pullCommand.c_str());
         cout << "File pulled to ./" << name << "." << fileType << endl;
+        
+        string response;
+        do {
+            cout << "Would you like to print this file? (y/n): ";
+            getline(cin, response);
+        } while (response != "y" && response != "n");
+        
+        if (response == "y") {
+            //string printer = askPrinter();
+            //printRequest(saveAs, printer);
+        }
 
     } else if (id[0] == 's') {
         
@@ -485,14 +542,24 @@ void runPull(string id, string header) {
         //get username from link
         string user = link.substr(link.find(":SPECS:"));
         user = user.substr(7);
-        string saveAs = " > \"" + name + "." + "pdf\"";
-        string pullCommand = "curl -s -H \""+ header +"\" \"" + link +"\"" + saveAs;
+        string saveAs = "\"" + name + ".pdf\"";
+        string pullCommand = "curl -s -H \""+ header +"\" \"" + link +"\" > " + saveAs;
         //cout << pullCommand << endl;
         cout << "Pulling file for " + user + "." << endl;
         system(pullCommand.c_str());
         cout << "File pulled to ./" << name << ".pdf" << endl;
-
         
+        string response;
+        do {
+            cout << "Would you like to print this file? (y/n): ";
+            getline(cin, response);
+        } while (response != "y" && response != "n");
+        
+        if (response == "y") {
+            //string printer = askPrinter();
+            //printRequest(saveAs, printer);
+        }
+
     } else cout << "Error: pull id not valid" << endl;
 }
 
@@ -538,11 +605,12 @@ void runCurrAss() {
         string current = ctime(&now);
         string mon = current.substr(4,3);
         string day = current.substr(8, 2);
+        if (day[0] == ' ') day[0] = '0';
         string year = current.substr(20);
         string today = day + " " + mon + " " + year;
-        //cout << today << endl;
+        cout << today << endl;
         
-        cout << left << setw(6) << "ID" << setw(28) << "Name" << setw(10) << "A/U" << setw(13) << "Due Date" << setw(20) << "Module" << endl;
+        cout << left << setw(6) << "ID" << setw(28) << "Name" << setw(10) << "Assessed" << setw(13) << "Due Date" << setw(20) << "Module" << endl;
         
         while (!ass.eof()) {
             string id;
@@ -554,10 +622,10 @@ void runCurrAss() {
             getline(ass, assType);
             string dueDate;
             getline(ass, dueDate);
-            if (assType == "green") assType = "A";
-            if (assType == "grey") assType = "U (Sub)";
-            if (assType == "pink") assType = "A (Grp)";
-            if (assType == "white") assType = "U";
+            if (assType == "green") assType = "Yes (Sub)";
+            if (assType == "grey") assType = "No (Sub)";
+            if (assType == "pink") assType = "Yes (Grp)";
+            if (assType == "white") assType = "No";
             string link;
             getline(ass, link);
             string submitID;
@@ -569,6 +637,14 @@ void runCurrAss() {
             //Print ass if due date has not passed
             if (numDate(today) <= numDate(dueDate)) {
                 if (numDate(today) == numDate(dueDate)) dueDate = "Today";
+                else if (dateDiff(numDate(today), numDate(dueDate)) == 1) {
+                    dueDate = "Tomorrow";
+                } else if (dateDiff(numDate(today), numDate(dueDate)) <= 7) {
+                    stringstream convert;
+                    convert << dateDiff(numDate(today), numDate(dueDate));
+                    string daysLeft = convert.str();
+                    dueDate = daysLeft + " days left";
+                }
                 cout << left << setw(6) << id << setw(28) << name << setw(10) << assType << setw(13) << dueDate << setw(20)<< module << endl;
             }
 
@@ -607,7 +683,7 @@ string stringDate(int date) {
 
 void runAllAss() {
     //cout << "Listing all assigments:\n" << endl;
-    cout << left << setw(6) << "ID" << setw(28) << "Name" << setw(10) << "A/U" << setw(13) << "Due Date" << setw(20) << "Module" << endl;
+    cout << left << setw(6) << "ID" << setw(28) << "Name" << setw(10) << "Assessed" << setw(13) << "Due Date" << setw(20) << "Module" << endl;
     ifstream fin(assPath.c_str());
     if (fin.is_open()) {
         while (!fin.eof()) {
@@ -618,10 +694,10 @@ void runAllAss() {
             if (name.length() > 27) name = name.substr(0, 24) + "...";
             string assType;
             getline(fin, assType);
-            if (assType == "green") assType = "A";
-            if (assType == "grey") assType = "U (Sub)";
-            if (assType == "pink") assType = "A (Grp)";
-            if (assType == "white") assType = "U";
+            if (assType == "green") assType = "Yes (Sub)";
+            if (assType == "grey") assType = "No (Sub)";
+            if (assType == "pink") assType = "Yes (Grp)";
+            if (assType == "white") assType = "No";
             string dueDate;
             getline(fin, dueDate);
             if (dueDate == "-1") dueDate = "-";
@@ -667,49 +743,90 @@ string* getClassPeriod() {
     return cp;
 }
 
-void runSubmit(string id) {
+void runSubmit(char *argv[], int size, string function) {
     
-    ifstream ass(assPath.c_str());
-    if (ass.is_open()) {
-        bool found = false;
-        while (!ass.eof()) {
-            string line;
-            getline(ass, line);
-            if (line == id) {found = true; break;}
-        }
+    vector<string> ids;
+    vector<string> submitIDs;
+    bool anyValid = false;
+    bool invalid = false;
+    
+    for (int i = 2; i < size; i++) {
+        ifstream ass(assPath.c_str());
+        if (ass.is_open()) {
+            
+            bool found = false;
+            while (!ass.eof()) {
+                string line;
+                getline(ass, line);
+                if (line == argv[i]) {found = true; ids.push_back(line); break;}
+            }
+            
+            if (!found) {
+                invalid = true;
+                cout << argv[i] << " not valid for submission." << endl;
+                continue;
+            }
+            
+            string submitID;
+            getline(ass, submitID);
+            getline(ass, submitID);
+            getline(ass, submitID);
+            getline(ass, submitID);
+            getline(ass, submitID);
+            
+            if (submitID == "-1") {
+                ids.pop_back();
+                invalid = true;
+                cout << argv[i] << " is not valid." << endl;
+                continue;
+            } else {
+                if (!anyValid) anyValid = true;
+                submitIDs.push_back(submitID);
+            }
+            
+            ass.close();
+            
+        } else cout << "Cannot submit assignment" << endl;
+
+    }
+    
+    if (anyValid) {
         
-        if (!found) {
-            cout << "id not valid for submission" << endl;
-            return;
-        }
-        
-        string submitID;
-        getline(ass, submitID);
-        getline(ass, submitID);
-        getline(ass, submitID);
-        getline(ass, submitID);
-        getline(ass, submitID);
-        
-        if (submitID == "-1") {
-            cout << "This ID is not valid." << endl;
-            return;
+        if (invalid) {
+            cout << "...submitting remaining valid ids." << endl << endl;
         }
         
         string* cp = getClassPeriod();
         string cl = cp[0];
         string pd = cp[1];
         
-        cout << "Please enter your cate username:" << endl;
+        cout << "Please enter your cate username: ";
         string user;
         getline(cin, user);
         
         cout << "Submitting a blank declaration for the assignment." << endl;
         cout << "If you have any declarations to add, add them on the cate website." << endl;
-        submit(user, cl, pd, submitID);
+        vector<bool> result = submit_multiple(user, cl, pd, submitIDs, function);
+        
+        /*
+        for (int j = 0; j < ids.size(); j++) {
+            cout << "Submitting " << ids[j] << endl;
+        }
+        */
+        
+        for (int j = 0; j < result.size(); j++) {
+            if (result[j] == true) {
+                cout << "Submitted " << ids[j] << "." << endl;
+            } else {
+                cout << "Cannot get cover for " << ids[j] << endl;
+                cout << "Possible reason: Assignment is already assignment" << endl;
+                cout << "Possible reason: No cover for this assignment" << endl;
+            }
+        }
+
         cout << "Complete." << endl;
         
-        
-    } else cout << "Cannot submit assignment" << endl;
+    } else cout << "Nothing to submit." << endl;
     
 }
 
