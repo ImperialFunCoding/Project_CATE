@@ -114,11 +114,23 @@ const string helpSection =  "\nAll possible cate commands:\n"
                             "cate set <class> <period>   Sets your current class and period.\n"
                             "                            eg. for Computing first year in autumn,\n"
                             "                                type into terminal: cate set c1 1\n"
+<<<<<<< HEAD
                             "                                for JMC first year in autumn,\n"
                             "                                type into terminal: cate set j1 1\n"
                             "\n"
                             "                 cate ass   Lists the assignments for which the deadline\n"
                             "                            has not passed, with their IDs and due date.\n"
+=======
+                            "\n"
+                            "         cate pull [<id>]   Downloads files to your current directory, and\n"
+                            "                            asks you if you want to print them. Input the\n"
+                            "                            IDs of the files you wish to download.\n"
+                            "                            eg. To download files s502, s545 and n19,\n"
+                            "                                type into terminal: cate pull s502 s545 n19\n"
+                            "\n"
+                            "                 cate ass   Lists the current assignments, along with ID and\n"
+                            "                            due date.\n"
+>>>>>>> 87a08ff89587c8e7189c8c381818e010d3132297
                             "\n"
                             "              cate ass -a   Lists all the assignments which are available on\n"
                             "                            cate along with their IDs.\n"
@@ -130,6 +142,7 @@ const string helpSection =  "\nAll possible cate commands:\n"
                             "                            module, along with the IDs.\n"
                             "                            eg. type into terminal: cate mods 3\n"
                             "\n"
+<<<<<<< HEAD
                             "         cate pull [<id>]   Downloads files to your current directory, and\n"
                             "                            asks you if you want to print them. Input the\n"
                             "                            IDs of the files you wish to download.\n"
@@ -137,6 +150,8 @@ const string helpSection =  "\nAll possible cate commands:\n"
                             "                                type into terminal: cate pull s502 s545 n19\n"
                             "                                where s502, s545 and n19 are IDs.\n"
                             "\n"
+=======
+>>>>>>> 87a08ff89587c8e7189c8c381818e010d3132297
                             "         cate submit <id>   Submits a programming assignment to cate. Right\n"
                             "                            after you push your work, just run this command\n"
                             "                            from your assignment's folder, and it will\n"
@@ -509,8 +524,13 @@ void runPull(string id, string header) {
         } while (response != "y" && response != "n");
         
         if (response == "y") {
+<<<<<<< HEAD
             string printer = askPrinter();
             printRequest(saveAs, printer);
+=======
+            //string printer = askPrinter();
+            //printRequest(saveAs, printer);
+>>>>>>> 87a08ff89587c8e7189c8c381818e010d3132297
         }
 
     } else if (id[0] == 's') {
@@ -556,8 +576,13 @@ void runPull(string id, string header) {
         } while (response != "y" && response != "n");
         
         if (response == "y") {
+<<<<<<< HEAD
             string printer = askPrinter();
             printRequest(saveAs, printer);
+=======
+            //string printer = askPrinter();
+            //printRequest(saveAs, printer);
+>>>>>>> 87a08ff89587c8e7189c8c381818e010d3132297
         }
 
     } else cout << "Error: pull id not valid" << endl;
@@ -819,8 +844,11 @@ void runSubmit(char *argv[], int size, string function) {
                 cout << "Submitted " << ids[j] << "." << endl;
             } else {
                 cout << "Cannot get cover for " << ids[j] << endl;
+<<<<<<< HEAD
                 cout << "Possible reason: Assignment is already assignment" << endl;
                 cout << "Possible reason: No cover for this assignment" << endl;
+=======
+>>>>>>> 87a08ff89587c8e7189c8c381818e010d3132297
             }
         }
 
