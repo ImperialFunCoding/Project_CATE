@@ -55,7 +55,7 @@ public:
     vector<Tag> get_tags(){
         vector<Tag> tagStack;
         string stringStack = "";
-        for (int i = 0; html[i]!='\0'; i++){
+        for (int i = 0; i<html.length(); i++){
             stringStack+=html[i];
             if (html[i]=='<'){
                 stringStack="<";
@@ -69,7 +69,7 @@ public:
     vector<string> get_contents(){
         vector<string> contentStack;
         string stringStack = "";
-        for (int i = 0; html[i]!='\0'; i++){
+        for (int i = 0; i < html.length(); i++){
             if (html[i]=='<'){
                 contentStack.push_back(trim(stringStack));
             }else{
@@ -79,7 +79,8 @@ public:
                 }
             }
         }
-        contentStack.erase(contentStack.begin());
+        if(contentStack.size()>0)
+            contentStack.erase(contentStack.begin());
         return contentStack; 
     }
 
