@@ -114,15 +114,11 @@ const string helpSection =  "\nAll possible cate commands:\n"
                             "cate set <class> <period>   Sets your current class and period.\n"
                             "                            eg. for Computing first year in autumn,\n"
                             "                                type into terminal: cate set c1 1\n"
+                            "                                for JMC first year in autumn,\n"
+                            "                                type into terminal: cate set j1 1\n"
                             "\n"
-                            "         cate pull [<id>]   Downloads files to your current directory, and\n"
-                            "                            asks you if you want to print them. Input the\n"
-                            "                            IDs of the files you wish to download.\n"
-                            "                            eg. To download files s502, s545 and n19,\n"
-                            "                                type into terminal: cate pull s502 s545 n19\n"
-                            "\n"
-                            "                 cate ass   Lists the current assignments, along with ID and\n"
-                            "                            due date.\n"
+                            "                 cate ass   Lists the assignments for which the deadline\n"
+                            "                            has not passed, with their IDs and due date.\n"
                             "\n"
                             "              cate ass -a   Lists all the assignments which are available on\n"
                             "                            cate along with their IDs.\n"
@@ -133,6 +129,13 @@ const string helpSection =  "\nAll possible cate commands:\n"
                             "    cate mods <modnumber>   Lists all the notes available for a specific\n"
                             "                            module, along with the IDs.\n"
                             "                            eg. type into terminal: cate mods 3\n"
+                            "\n"
+                            "         cate pull [<id>]   Downloads files to your current directory, and\n"
+                            "                            asks you if you want to print them. Input the\n"
+                            "                            IDs of the files you wish to download.\n"
+                            "                            eg. To download files s502, s545 and n19,\n"
+                            "                                type into terminal: cate pull s502 s545 n19\n"
+                            "                                where s502, s545 and n19 are IDs.\n"
                             "\n"
                             "         cate submit <id>   Submits a programming assignment to cate. Right\n"
                             "                            after you push your work, just run this command\n"
@@ -506,8 +509,8 @@ void runPull(string id, string header) {
         } while (response != "y" && response != "n");
         
         if (response == "y") {
-            //string printer = askPrinter();
-            //printRequest(saveAs, printer);
+            string printer = askPrinter();
+            printRequest(saveAs, printer);
         }
 
     } else if (id[0] == 's') {
@@ -553,8 +556,8 @@ void runPull(string id, string header) {
         } while (response != "y" && response != "n");
         
         if (response == "y") {
-            //string printer = askPrinter();
-            //printRequest(saveAs, printer);
+            string printer = askPrinter();
+            printRequest(saveAs, printer);
         }
 
     } else cout << "Error: pull id not valid" << endl;
@@ -602,6 +605,7 @@ void runCurrAss() {
         string current = ctime(&now);
         string mon = current.substr(4,3);
         string day = current.substr(8, 2);
+        if (day[0] == ' ') day[0] = '0';
         string year = current.substr(20);
         string today = day + " " + mon + " " + year;
         //cout << today << endl;
@@ -815,6 +819,8 @@ void runSubmit(char *argv[], int size, string function) {
                 cout << "Submitted " << ids[j] << "." << endl;
             } else {
                 cout << "Cannot get cover for " << ids[j] << endl;
+                cout << "Possible reason: Assignment is already assignment" << endl;
+                cout << "Possible reason: No cover for this assignment" << endl;
             }
         }
 

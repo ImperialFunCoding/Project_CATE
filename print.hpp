@@ -40,7 +40,7 @@ string askPrinter(){
         cout<<left<<setw(3)<<i<<printers[i]<<endl;
     }
     do{
-        cout<<"Enter the printer ID:";
+        cout<<"Enter the printer ID: ";
         cout.flush();
         getline(cin,p);
         n=atoi(p.c_str());
@@ -55,6 +55,5 @@ string askPrinter(){
 void printRequest(string path, string printer){
     string command = "lpr -P \""+printer+"\" "+path;
     system(command.c_str());
-    cout<<"Your printing job has been sent to "+printer<<endl;
-    //tell_term("lpq -P "+printer);
+    cout<<"Your printing job has been sent to "+printer<<"."<<endl;
 }
