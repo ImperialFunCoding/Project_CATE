@@ -509,8 +509,8 @@ void runPull(string id, string header) {
         } while (response != "y" && response != "n");
         
         if (response == "y") {
-            //string printer = askPrinter();
-            //printRequest(saveAs, printer);
+            string printer = askPrinter();
+            printRequest(saveAs, printer);
         }
 
     } else if (id[0] == 's') {
@@ -556,8 +556,8 @@ void runPull(string id, string header) {
         } while (response != "y" && response != "n");
         
         if (response == "y") {
-            //string printer = askPrinter();
-            //printRequest(saveAs, printer);
+            string printer = askPrinter();
+            printRequest(saveAs, printer);
         }
 
     } else cout << "Error: pull id not valid" << endl;
@@ -608,7 +608,7 @@ void runCurrAss() {
         if (day[0] == ' ') day[0] = '0';
         string year = current.substr(20);
         string today = day + " " + mon + " " + year;
-        cout << today << endl;
+        //cout << today << endl;
         
         cout << left << setw(6) << "ID" << setw(28) << "Name" << setw(10) << "Assessed" << setw(13) << "Due Date" << setw(20) << "Module" << endl;
         
