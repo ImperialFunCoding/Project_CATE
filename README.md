@@ -61,7 +61,7 @@ Sets your current class and period.
 >cate set c1 1
 ```
 
-for JMC first year in autumn, type into terminal:
+- e.g. for JMC first year in autumn, type into terminal:
 ```bash
 >cate set j1 1
 ```
