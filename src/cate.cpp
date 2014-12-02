@@ -150,6 +150,8 @@ const string helpSection =  "\nAll possible cate commands:\n"
                             "\n"
                             "             cate version   Prints the version of the cate program.\n"
                             "\n";
+//CONST
+const string CATE_VERSION = "BETA2";
 
 //Path for attributes file
 const string attPath = string(getenv("HOME"))+"/.cateFiles/attributes.txt";
@@ -288,7 +290,7 @@ void execCommand(int size, char *argv[]) {
     } else if (string(argv[1]) == VERSION) {
         
         if (size == 2) {
-                cout << "cate BETA: Published 02/12/2014" << endl;
+                cout << "cate "<<CATE_VERSION<<": Published 02/12/2014" << endl;
         } else cout << "Correct usage: cate version" << endl;
         
     }else cout << "Impossible!" << endl;
