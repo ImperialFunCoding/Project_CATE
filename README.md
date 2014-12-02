@@ -70,9 +70,9 @@ Sets your current class and period.
 > cate set c1 1
 ```
 
-- e.g. for JMC first year in autumn, type into terminal:
+- e.g. for JMC third year in spring, type into terminal:
 ```bash
-> cate set j1 1
+> cate set j3 3
 ```
 
 ###cate ass
