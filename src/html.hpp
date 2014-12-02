@@ -269,7 +269,7 @@ private:
         vector<string> moduleStack;
         for (int i=0; i < contents.size(); i++){
             if(contents[i].length()>=3){
-                if(contents[i][0]=='-'){
+                if(contents[i][0]=='-' && contents[i][1]==' '){
                     moduleStack.push_back(contents[i].substr(2));
                 }
             }
