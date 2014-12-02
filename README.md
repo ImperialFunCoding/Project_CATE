@@ -8,11 +8,11 @@ Hello to all you hackers out there, we are Jason and Amey, computing students at
 This program has been written in C++.
 
 ## What is the latest version?
-CATE beta
+CATE beta2
 
 ## How do I install it?
 
-1. Go to [https://github.com/ImperialUndergroundHacker/Project_CATE/releases/tag/beta](Go to https://github.com/ImperialUndergroundHacker/Project_CATE/releases/tag/beta) and download the latest release.
+1. Go to [https://github.com/ImperialUndergroundHacker/Project_CATE/releases/tag/beta2](Go to https://github.com/ImperialUndergroundHacker/Project_CATE/releases/tag/beta2) and download the latest release.
 
 2. Extract your files
 
