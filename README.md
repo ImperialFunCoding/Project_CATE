@@ -52,7 +52,7 @@ Updates your computer with the latest changes on cate, for example if a new assi
 
 ###cate set &lt;class&gt; &lt;period&gt;
 Sets your current class and period.
-- e.g. for Computing first year in autumn, type into terminal:
+
 ####period table
 
 | Period | Meaning     |
@@ -65,6 +65,7 @@ Sets your current class and period.
 | 6      | Jun-Jul     |
 | 7      | Aug-Sept    |
 
+- e.g. for Computing first year in autumn, type into terminal:
 ```bash
 > cate set c1 1
 ```
