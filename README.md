@@ -6,20 +6,16 @@ Hello to all you hackers out there, we are Jason and Amey, computing students at
 This program has been written in C++.
 
 ##What is the latest version?
-CATE BETA
+CATE beta
 
 ##How do I install it?
-For the beta version, you will have to download the source code and compile it yourself.
+1. Go to [https://github.com/ImperialUndergroundHacker/Project_CATE/releases/tag/beta](Go to https://github.com/ImperialUndergroundHacker/Project_CATE/releases/tag/beta) and download the latest release.
 
-Type the following into the terminal:
-```bash
-> cd {{your desired directory}}
-> git clone https://github.com/ImperialUndergroundHacker/Project_CATE.git
-> g++ Project_CATE/cate.cpp -o cate
-```
+2. Extract your files
 
-After performing the above commands, cate is ready on your machine! You can call it using:
+Cate is ready on your machine! You can call it using:
 ```bash
+-- Pre: You need to be inside the folder
 > ./cate
 ```
 
@@ -29,13 +25,13 @@ There are two ways that we recommend to make the "cate" command recognisable by 
 To build an alias, perform the following command on the terminal:
 Linux:
 ```bash
---Pre: the compiled cate file is in your current directory
+--Pre: the cate program is in your current directory
 > pwd | xargs -i echo "alias cate {}/cate" >> ~/.cshrc
 > source ~/.cshrc
 ```
 Mac:
 ```bash
---Pre: the compiled cate file is at your current directory
+--Pre: the cate program is in your current directory
 > pwd | xargs -i echo "alias cate={}/cate" >> ~/.bash_profile
 > source ~/.bash_profile
 ```
