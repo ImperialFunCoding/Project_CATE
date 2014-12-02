@@ -54,12 +54,12 @@ Updates your computer with the latest changes on cate, for example if a new assi
 Sets your current class and period.
 - e.g. for Computing first year in autumn, type into terminal:
 ```bash
->cate set c1 1
+> cate set c1 1
 ```
 
 - e.g. for JMC first year in autumn, type into terminal:
 ```bash
->cate set j1 1
+> cate set j1 1
 ```
 
 ###cate ass
@@ -75,7 +75,7 @@ Lists all the modules for the current term, along with their module numbers.
 Lists all the notes available for a specific module, along with the IDs.
 - e.g. type into terminal:
 ```bash
->cate mods 3
+> cate mods 3
 ```
 
 ###cate pull [&lt;id&gt;]
