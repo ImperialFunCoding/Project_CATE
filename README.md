@@ -30,13 +30,13 @@ To build an alias, perform the following command on the terminal:
 Linux:
 ```bash
 --Pre: the compiled cate file is in your current directory
-> pwd | xargs -i echo "alias cate {}/cate" &gt;&gt; ~/.cshrc
+> pwd | xargs -i echo "alias cate {}/cate" >> ~/.cshrc
 > source ~/.cshrc
 ```
 Mac:
 ```bash
 --Pre: the compiled cate file is at your current directory
-> pwd | xargs -i echo "alias cate={}/cate" &gt;&gt; ~/.bash_profile
+> pwd | xargs -i echo "alias cate={}/cate" >> ~/.bash_profile
 > source ~/.bash_profile
 ```
 ###Copy it to "/bin" (requires sudo)
