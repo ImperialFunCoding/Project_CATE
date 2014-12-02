@@ -82,7 +82,7 @@ Lists all the notes available for a specific module, along with the IDs.
 Downloads files to your current directory, and asks you if you want to print them. Input the IDs of the files you wish to download.
 - e.g. To download files with IDs s502, s545 and n19, type into terminal:
 ```bash
->cate pull s502 s545 n19
+> cate pull s502 s545 n19
 ```
 
 ###cate submit &lt;id&gt;
@@ -92,5 +92,5 @@ Submits a programming assignment to cate. Right after you push your work, just r
 Handles the submission of non-programming assignments. This will download the cover pages and ask you if you want to print them.
 - e.g. type into terminal:
 ```bash
->cate getcover s502 s545
+> cate getcover s502 s545
 ```
