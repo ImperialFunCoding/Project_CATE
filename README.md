@@ -1,7 +1,7 @@
 Project_CATE
 ============
 ##Preface
-Hello to all you hackers out there, we are Jason and Amey, computer science students at Imperial College London. The main motivation behind this project was to write an interface which made accessing CATE (an online management system for DOC) and using its functionality easier.
+Hello to all you hackers out there, we are Jason and Amey, computing students at Imperial College London. The main motivation behind this project was to write an interface which made accessing CATE (an online course management system for DOC) and using its functionality easier.
 
 This program has been written in C++.
 
