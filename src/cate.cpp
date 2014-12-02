@@ -573,15 +573,15 @@ void runPull(string id, string header) {
 }
 
 bool isValidClass(string cl) {
-    //Temporary value
-    return (cl == "c1" || cl == "c2" || cl == "c3");
-    //if (!(cl.length() == 2)) return false;
-    //if (c[0] == 'c' ||
+    if (cl.length() != 2) return false;
+    if (cl[0] != 'c' && cl[0] != 'j') return false;
+    if (cl[1] != '1' && cl[1] != '2' && cl[1] != '3' && cl[1] != '4') return false;
+    return true;
 }
 
 bool isValidPeriod(string period) {
-    //Temporary value
-    return (period == "1" || period == "2");
+    return (period == "1" || period == "2" || period == "3" || period == "4" || period == "5" ||
+            period == "6" || period == "7");
 }
 
 void runSet(string cl, string period) {
