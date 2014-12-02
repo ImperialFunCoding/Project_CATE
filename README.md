@@ -8,28 +8,28 @@ This program has been written in C++.
 ##What is the latest version?
 CATE BETA
 
-##How to install?
-For beta version, you will have to download the source code and compile it yourself in order to use it.
+##How do I install it?
+For the beta version, you will have to download the source code and compile it yourself.
 
-Type in the following to the terminal:
+Type the following into the terminal:
 ```bash
 > cd {{your desired directory}}
 > git clone https://github.com/ImperialUndergroundHacker/Project_CATE.git
 > g++ Project_CATE/cate.cpp -o cate
 ```
 
-After performing the above commands, your cate is ready on your machine! You can call it using:
+After performing the above commands, cate is ready on your machine! You can call it using:
 ```bash
 > ./cate
 ```
 
-##How to call the program with only "cate"?
+##How do I call the program without "./" in front of "cate"?
 There are two ways that we recommend to make the "cate" command recognisable by your machine.
-###Build alias (work for labs machine)
+###Build an alias (works for the lab machines)
 To build an alias, perform the following command on the terminal:
 Linux:
 ```bash
---Pre: the compiled cate file is at your current directory
+--Pre: the compiled cate file is in your current directory
 > pwd | xargs -i echo "alias cate {}/cate" &gt;&gt; ~/.cshrc
 > source ~/.cshrc
 ```
@@ -39,16 +39,16 @@ Mac:
 > pwd | xargs -i echo "alias cate={}/cate" &gt;&gt; ~/.bash_profile
 > source ~/.bash_profile
 ```
-###Copy it to "/bin" (require sudo)
+###Copy it to "/bin" (requires sudo)
 To copy the file to the "/bin", perform the following command on the terminal:
 ```bash
 --Pre: the compiled cate file is at your current directory
 > sudo cp cate /bin
 ```
-This command will require your password.
+This command will require your computer password.
 
-Your cate command is ready to go!
-##How to use CATE?
+The cate command is now ready to use!
+##How do I use CATE?
 All possible cate commands:
 
 ###cate update
@@ -56,7 +56,12 @@ Updates your computer with the latest changes on cate, for example if a new assi
 
 ###cate set &lt;class&gt; &lt;period&gt;
 Sets your current class and period.
-- e.g. for Computing first year in autumn,type into terminal: cate set c1 1 for JMC first year in autumn, type into terminal:
+- e.g. for Computing first year in autumn, type into terminal:
+```bash
+>cate set c1 1
+```
+
+for JMC first year in autumn, type into terminal:
 ```bash
 >cate set j1 1
 ```
