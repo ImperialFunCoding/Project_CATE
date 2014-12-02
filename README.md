@@ -56,7 +56,7 @@ Updates your computer with the latest changes on cate, for example if a new assi
 
 ###cate set <class> <period>
 Sets your current class and period.
--eg. for Computing first year in autumn,type into terminal: cate set c1 1 for JMC first year in autumn, type into terminal:
+- e.g. for Computing first year in autumn,type into terminal: cate set c1 1 for JMC first year in autumn, type into terminal:
 ```bashe
 cate set j1 1
 ```
@@ -72,22 +72,18 @@ Lists all the modules for the current term, along with their module numbers.
 
 ###cate mods <modnumber>
 Lists all the notes available for a specific module, along with the IDs.
--eg. type into terminal: cate mods 3
+- e.g. type into terminal: cate mods 3
 
-cate pull [<id>] Downloads files to your current directory, and
-asks you if you want to print them. Input the
-IDs of the files you wish to download.
-eg. To download files s502, s545 and n19,
-type into terminal: cate pull s502 s545 n19
-where s502, s545 and n19 are IDs.
+###cate pull [<id>]
+Downloads files to your current directory, and asks you if you want to print them. Input the IDs of the files you wish to download.
+- e.g. To download files with IDs s502, s545 and n19, type into terminal:
+```bash
+>cate pull s502 s545 n19
+```
 
-cate submit <id> Submits a programming assignment to cate. Right
-after you push your work, just run this command
-from your assignment's folder, and it will
-handle the declaration submission and cate token
-upload.
+###cate submit <id>
+Submits a programming assignment to cate. Right after you push your work, just run this command from your assignment's folder, and it will handle the declaration submission and cate token upload.
 
-cate getcover [<id>] Handles the submission of non-programming
-assignments. This will download the cover pages
-and ask you if you want to print them.
-eg. type into terminal: cate getcover s502 s545
+###cate getcover [<id>]
+Handles the submission of non-programming assignments. This will download the cover pages and ask you if you want to print them.
+- e.g. type into terminal: cate getcover s502 s545
