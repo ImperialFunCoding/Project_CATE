@@ -54,6 +54,7 @@ Updates your computer with the latest changes on cate, for example if a new assi
 Sets your current class and period.
 - e.g. for Computing first year in autumn, type into terminal:
 ####period table
+
 | Period | Meaning     |
 |--------|-------------|
 | 1      | AUTUMN TERM |
@@ -63,6 +64,7 @@ Sets your current class and period.
 | 5      | SUMMER TERM |
 | 6      | Jun-Jul     |
 | 7      | Aug-Sept    |
+
 ```bash
 > cate set c1 1
 ```
