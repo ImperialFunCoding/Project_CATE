@@ -107,3 +107,7 @@ Handles the submission of non-programming assignments. This will download the co
 ```bash
 > cate getcover s502 s545
 ```
+
+##Last words
+This app is not an official app from DOC.
+Please use it at your own risk. :)
