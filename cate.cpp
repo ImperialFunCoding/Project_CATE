@@ -27,10 +27,10 @@ using namespace std;
      cate --help
      cate submit <id>
      cate getcover <ids>
+     cate version
 */
 
 //global map for months
-
 
 map <string, string> stringMonths;
 /*
@@ -147,6 +147,8 @@ const string helpSection =  "\nAll possible cate commands:\n"
                             "                            assignments. This will download the cover pages\n"
                             "                            and ask you if you want to print them.\n"
                             "                            eg. type into terminal: cate getcover s502 s545\n"
+                            "\n"
+                            "             cate version   Prints the version of the cate program.\n"
                             "\n";
 
 //Path for attributes file
@@ -163,8 +165,9 @@ const string ASS    = "ass";
 const string HELP   = "--help";
 const string SUBMIT = "submit";
 const string GETCOVER = "getcover";
+const string VERSION = "version";
 
-string validCommands[] = {UPDATE, SET, PULL, MODS, ASS, HELP, SUBMIT, GETCOVER};
+string validCommands[] = {UPDATE, SET, PULL, MODS, ASS, HELP, SUBMIT, GETCOVER, VERSION};
 
 // Function declarations
 bool fileExists(string path);
@@ -210,7 +213,7 @@ int main(int argc, char *argv[]) {
         initAttributes();
     }
     
-    if (elem(string(argv[1]), validCommands, 8)) {
+    if (elem(string(argv[1]), validCommands, 9)) {
        execCommand(argc, argv);
     }
     else {
@@ -282,7 +285,13 @@ void execCommand(int size, char *argv[]) {
                 runSubmit(argv, size, "getcover");
         } else cout << "Correct usage: cate getcover <ids>" << endl;
         
-    } else cout << "Impossible!" << endl;
+    } else if (string(argv[1]) == VERSION) {
+        
+        if (size == 2) {
+                cout << "cate BETA: Published 02/12/2014" << endl;
+        } else cout << "Correct usage: cate version" << endl;
+        
+    }else cout << "Impossible!" << endl;
 }
 
 ////////// Executive Functions //////////
@@ -649,7 +658,6 @@ void runCurrAss() {
             }
 
         }
-        //cout << stringDate(20140511) << endl;
         ass.close();
         cout << endl;
     } else cout << "No Assignments to show" << endl;
@@ -808,12 +816,6 @@ void runSubmit(char *argv[], int size, string function) {
         cout << "If you have any declarations to add, add them on the cate website." << endl;
         vector<bool> result = submit_multiple(user, cl, pd, submitIDs, function);
         
-        /*
-        for (int j = 0; j < ids.size(); j++) {
-            cout << "Submitting " << ids[j] << endl;
-        }
-        */
-        
         for (int j = 0; j < result.size(); j++) {
             if (result[j] == true) {
                 cout << "Submitted " << ids[j] << "." << endl;
@@ -823,8 +825,6 @@ void runSubmit(char *argv[], int size, string function) {
                 cout << "Possible reason: No cover for this assignment" << endl;
             }
         }
-
-        cout << "Complete." << endl;
         
     } else cout << "Nothing to submit." << endl;
     

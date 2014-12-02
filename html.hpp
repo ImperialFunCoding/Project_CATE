@@ -61,8 +61,11 @@ static string declaration(string user, string cl, string period, string header, 
     forms.push_back("version=0");
     forms.push_back("key=2014:"+period+":"+sId+":"+cl+":leader:"+user);
 
+    if(ss == "1") return "0";
+
     Curl curl_declear(url,header,forms);
-    if(curl_declear.html=="") return "0";
+    if(curl_declear.html=="" || ss == "1") return "0";
+
     return ss;
 }
 
