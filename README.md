@@ -30,13 +30,13 @@ To build an alias, perform the following command on the terminal:
 Linux:
 ```bash
 --Pre: the compiled cate file is at your current directory
-> pwd | xargs -i echo "alias cate {}/cate" >> ~/.cshrc
+> pwd | xargs -i echo "alias cate {}/cate" &gt;&gt; ~/.cshrc
 > source ~/.cshrc
 ```
 Mac:
 ```bash
 --Pre: the compiled cate file is at your current directory
-> pwd | xargs -i echo "alias cate={}/cate" >> ~/.bash_profile
+> pwd | xargs -i echo "alias cate={}/cate" &gt;&gt; ~/.bash_profile
 > source ~/.bash_profile
 ```
 ###Copy it to "/bin" (require sudo)
@@ -54,11 +54,11 @@ All possible cate commands:
 ###cate update
 Updates your computer with the latest changes on cate, for example if a new assignment has been uploaded.
 
-###cate set <class> <period>
+###cate set &lt;class&gt; &lt;period&gt;
 Sets your current class and period.
 - e.g. for Computing first year in autumn,type into terminal: cate set c1 1 for JMC first year in autumn, type into terminal:
-```bashe
-cate set j1 1
+```bash
+>cate set j1 1
 ```
 
 ###cate ass
@@ -70,20 +70,26 @@ Lists all the assignments which are available on cate along with their IDs.
 ###cate mods
 Lists all the modules for the current term, along with their module numbers.
 
-###cate mods <modnumber>
+###cate mods &lt;modnumber&gt;
 Lists all the notes available for a specific module, along with the IDs.
-- e.g. type into terminal: cate mods 3
+- e.g. type into terminal:
+```bash
+>cate mods 3
+```
 
-###cate pull [<id>]
+###cate pull [&lt;id&gt;]
 Downloads files to your current directory, and asks you if you want to print them. Input the IDs of the files you wish to download.
 - e.g. To download files with IDs s502, s545 and n19, type into terminal:
 ```bash
 >cate pull s502 s545 n19
 ```
 
-###cate submit <id>
+###cate submit &lt;id&gt;
 Submits a programming assignment to cate. Right after you push your work, just run this command from your assignment's folder, and it will handle the declaration submission and cate token upload.
 
-###cate getcover [<id>]
+###cate getcover [&lt;id&gt;]
 Handles the submission of non-programming assignments. This will download the cover pages and ask you if you want to print them.
-- e.g. type into terminal: cate getcover s502 s545
+- e.g. type into terminal:
+```bash
+>cate getcover s502 s545
+```
